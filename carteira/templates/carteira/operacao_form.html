@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h4>Cadastrar Ação</h4>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'carteira:create_operacao' %}">
+          {% csrf_token %}
+          
+          {% for field in form %}
+            <p>{{ field.label }}</p>
+            {{ field }}
+          {% endfor %}
+          
+          {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <li>{{ field.errors }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+          {% endif %}
+          <br>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+          <a href="{% url 'carteira:index' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

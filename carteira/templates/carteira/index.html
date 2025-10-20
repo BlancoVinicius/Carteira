@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <div class="card">
+            <div class="card-header">
+                <h2>Welcome to Splitwise Clone</h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">Split expenses with friends and family easily!</p>
+                <div class="mt-4">
+                    <a href="{% url 'carteira:login' %}" class="btn btn-primary btn-lg me-3">Login</a>
+                    <a href="{% url 'carteira:register' %}" class="btn btn-outline-primary btn-lg">Register</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Easy Splitting</h5>
+                        <p class="card-text">Split bills with friends and roommates in just a few clicks.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Track Balances</h5>
+                        <p class="card-text">Keep track of who owes what with clear balance information.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">No More Awkward Chats</h5>
+                        <p class="card-text">Let Splitwise handle the math and the awkward conversations about money.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

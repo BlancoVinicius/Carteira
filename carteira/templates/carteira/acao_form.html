@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h4>Cadastrar Ação</h4>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'carteira:create_acao' %}">
+          {% csrf_token %}
+          
+          <!-- Campo de código -->
+          <div class="mb-3">
+            <label for="id_codigo" class="form-label">{{ form.codigo.label }}</label>
+            {{ form.codigo }}
+            {% if form.codigo.errors %}
+              <div class="text-danger small">{{ form.codigo.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Campo de setor -->
+          <div class="mb-3">
+            <label for="id_setor" class="form-label">{{ form.setor.label }}</label>
+            {{ form.setor }}
+            {% if form.setor.errors %}
+              <div class="text-danger small">{{ form.setor.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Campo de descrição -->
+          <div class="mb-3">
+            <label for="id_descricao" class="form-label">{{ form.descricao.label }}</label>
+            {{ form.descricao }}
+            {% if form.descricao.errors %}
+              <div class="text-danger small">{{ form.descricao.errors }}</div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary">Salvar</button>
+          <a href="{% url 'carteira:index' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
