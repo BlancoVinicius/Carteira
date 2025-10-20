@@ -21,7 +21,7 @@ def create_acao(request):
         form = AcaoForm(request.POST)
         if form.is_valid():
             print("Formulário válido")
-            form.save()
+            form.save(request.user)
             return redirect("carteira:index")  # redireciona após salvar
     else:
         form = AcaoForm()
@@ -34,7 +34,7 @@ def create_operacao(request):
         form = OperacaoForm(request.POST)
         if form.is_valid():
             print("Formulário válido")
-            form.save()
+            form.save(usuario=request.user)
             return redirect("carteira:index")  # redireciona após salvar
     else:
         form = OperacaoForm()

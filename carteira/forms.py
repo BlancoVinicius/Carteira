@@ -74,7 +74,7 @@ class OperacaoForm(forms.ModelForm):
         self.fields["ativo"].choices = opcoes
         self.fields["ativo"].widget.attrs.update({"class": "form-select"})
 
-    def save(self, commit=True):
+    def save(self, usuario=None, commit=True):
         instance = super().save(commit=False)
 
         ativo_str = self.cleaned_data["ativo"]
@@ -90,33 +90,12 @@ class OperacaoForm(forms.ModelForm):
         # Define content_type e object_id automaticamente
         instance.content_type = ContentType.objects.get_for_model(model)
         instance.object_id = ativo.id
+        instance.usuario = usuario
 
         if commit:
             instance.save()
         return instance
 
-
-# class OperacaoForm(forms.ModelForm):
-#     # Sobrescrevendo campos do Model
-#     # codigo = forms.ChoiceField(label="Código da Ação")
-
-#     class Meta:
-#         model = Operacao
-#         fields = "__all__"
-
-# def __init__(self, *args, **kwargs):
-#     super().__init__(*args, **kwargs)
-
-#     # lista de códigos válidos
-#     lista_codigos = ["PETR4", "VALE3", "ITUB4", "BBDC3"]
-
-#     # gera a lista de opções para o <select>
-#     self.fields["codigo"].choices = [(c, c) for c in lista_codigos]
-#     self.fields["codigo"].choices.insert(0, ("", "Selecione um código"))
-
-#     # Aplica classe Bootstrap
-#     for field in self.fields.values():
-#         field.widget.attrs.update({"class": "form-control"})
 
 # def clean_codigo(self):
 #     """Valida se o código da ação já existe no banco."""
