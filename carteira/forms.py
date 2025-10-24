@@ -96,6 +96,21 @@ class OperacaoForm(forms.ModelForm):
             instance.save()
         return instance
 
+    def clean_quantidade(self):
+        qtd = self.cleaned_data.get("quantidade")
+    
+        if qtd <= 0:
+            raise forms.ValidationError("Quantidade deve ser maior que zero.")
+
+        return qtd
+
+    def clean_preco(self):
+        preco = self.cleaned_data.get("preco")
+    
+        if preco <= 0:
+            raise forms.ValidationError("Preço deve ser maior que zero.")
+
+        return preco
 
 # def clean_codigo(self):
 #     """Valida se o código da ação já existe no banco."""

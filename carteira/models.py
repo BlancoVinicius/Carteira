@@ -3,10 +3,6 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
-
-from abc import ABC, abstractmethod
 
 # Create your models here.
 
@@ -107,6 +103,9 @@ class Operacao(models.Model):
     def custo_total(self):
         return (self.preco * self.quantidade) + self.corretagem + self.emolumentos
 
+    @property
+    def valor_atual(self):
+        return self.quantidade * self.preco
 
 # -------------------------
 # Posições genéricas
@@ -130,3 +129,5 @@ class Posicao(models.Model):
     @property
     def valor_atual(self):
         return self.quantidade * self.preco_medio
+
+    

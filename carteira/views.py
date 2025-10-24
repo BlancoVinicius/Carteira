@@ -38,5 +38,5 @@ def create_operacao(request):
             return redirect("carteira:index")  # redireciona após salvar
     else:
         form = OperacaoForm()
-
+        
     return render(request, "carteira/operacao_form.html", {"form": form})
