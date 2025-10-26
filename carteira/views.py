@@ -1,10 +1,8 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
 
 from .forms import AcaoForm, OperacaoForm
 from carteira.repositories import OperacaoRepository, AcaoRepository
-from carteira.service import DadosMercado
-from carteira.models import Posicao
+from carteira.service import DashboardService
 
 # Create your views here.
 def index(request):
@@ -39,7 +37,7 @@ def create_operacao(request):
         if form.is_valid():
             print("Formulário válido")
             operacao = OperacaoRepository.save(form.cleaned_data, request.user)
-            return redirect("carteira:index")  # redireciona após salvar
+            return redirect("carteira:dashboard")  # redireciona após salvar
     else:
         form = OperacaoForm()
         
@@ -60,26 +58,10 @@ def operacao_list(request):
     return render(request, "carteira/operacoes_list.html", context)
 
 
-
-# def operacao_list(request):
-#     operacoes = OperacaoRepository.get_operacoes(request.user)
-#     return render(request, "carteira/operacao_list.html", {"operacoes": operacoes})
-
 def dashboard(request):
-    posicoes = Posicao.objects.all()
-    lista_tickers = []
-    dados = {}
-    for posicao in posicoes:
-        lista_tickers.append(posicao.ativo.codigo)
+    context = DashboardService.get_resumo_carteira(request)
 
-    df = DadosMercado.historico(lista_tickers)
-    
-    for posicao in posicoes:
-        dados[posicao.ativo.codigo] = {
-            "quantidade": f"{posicao.quantidade:.0f}",
-            "preco_medio": f"{posicao.preco_medio:.2f}",
-            "cotacao":f"{df[posicao.ativo.codigo + ".SA"]:.2f}",
-        }
+    if not context:
+        return render(request, "carteira/dashboard.html", {"posicoes": []})
 
-    return JsonResponse(dados)
-    # return render(request, "carteira/dashboard.html", {"dados": dados})
+    return render(request, "carteira/dashboard.html", context)

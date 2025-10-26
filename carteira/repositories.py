@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from carteira.models import Operacao, Acao, FII, Opcao
+from carteira.models import Operacao, Acao, FII, Opcao, Posicao
 
 
 
@@ -138,3 +138,35 @@ class OpcaoRepository:
         opcao = Opcao(**dados_form)
         opcao.save()
         return opcao
+
+class PosicaoRepository:
+    @staticmethod
+    def get_posicao_all(usuario):
+        """
+        Retorna a posicao do usuario
+        :return: QuerySet
+        """
+        return Posicao.objects.filter(usuario=usuario)
+
+    @staticmethod
+    def get_posicao(usuario, ativo):
+        """
+        Retorna a posicao do usuario
+        :param usuario: User
+        :param ativo: Ativo
+        :return: QuerySet
+        """
+        return Posicao.objects.filter(usuario=usuario, ativo=ativo)
+
+    @staticmethod
+    def save(usuario, dados_form):
+        """
+        Salva uma posicao no banco a partir dos dados validados do formulário.
+        :param usuario: User
+        :param dados_form: dict, dados validados do form (cleaned_data)
+        :return: Posicao
+        """
+        posicao = Posicao(**dados_form)
+        posicao.usuario = usuario
+        posicao.save()
+        return posicao

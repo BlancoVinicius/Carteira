@@ -1,70 +1,92 @@
 {% extends "base.html" %}
-
+{% load humanize %}
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Recent Expenses</h5>
-                <a href="{{ url_for('add_expense') }}" class="btn btn-sm btn-primary">Add Expense</a>
-            </div>
-            <div class="card-body">
-                {% if expenses %}
-                    <div class="list-group">
-                        {% for expense in expenses %}
-                        <div class="list-group-item">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ expense.description }}</h6>
-                                <span class="text-muted">{{ expense.date_created.strftime('%b %d, %Y') }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small>Paid by {{ expense.payer.username }}</small>
-                                <span class="fw-bold">${{ "%.2f"|format(expense.amount) }}</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="text-muted text-center my-4">No expenses yet. <a href="{{ url_for('add_expense') }}">Add your first expense</a></p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Balances</h5>
-            </div>
-            <div class="card-body">
-                {% if balances %}
-                    <ul class="list-group">
-                        {% for user, balance in balances.items() %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ user }}
-                                <span class="badge {% if balance > 0 %}bg-success{% elif balance < 0 %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill">
-                                    ${{ "%.2f"|format(balance|abs) }} {% if balance > 0 %}owes you{% elif balance < 0 %}you owe{% else %}settled{% endif %}
-                                </span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted text-center my-4">No balances to show yet</p>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Quick Actions</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{{ url_for('add_expense') }}" class="btn btn-primary">Add an expense</a>
-                    <button class="btn btn-outline-secondary">Settle up</button>
+<div class="container">
+    <h3 class="mb-4">Resumo da Carteira</h3>
+
+    <!-- Cards de resumo -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>Total Investido</h6>
+                    <h4>R$ {{ resumo.valor_investido|floatformat:2|intcomma }}</h4>
                 </div>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>Valor Atual</h6>
+                    <h4>R$ {{ resumo.valor_atual|floatformat:2|intcomma }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>Lucro / Prejuízo</h6>
+                    <h4 class="{% if resumo.lucro >= 0 %}balance-positive{% else %}balance-negative{% endif %}">
+                        R$ {{ resumo.lucro|floatformat:2|intcomma }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>Rendimento</h6>
+                    <h4>{{ resumo.percentual|floatformat:2|intcomma }}%</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de posições -->
+    <div class="card mb-4">
+        <div class="card-header">Posições Atuais</div>
+        <div class="card-body table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Ativo</th>
+                        <th>Qtd</th>
+                        <th>Preço Médio</th>
+                        <th>Preço Atual</th>
+                        <th>Lucro</th>
+                        <th>Variação (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in posicoes %}
+                    <tr>
+                        <td>{{ p.ativo }}</td>
+                        <td>{{ p.quantidade|floatformat:0 }}</td>
+                        <td>R$ {{ p.preco_medio|floatformat:2|intcomma }}</td>
+                        <td>R$ {{ p.preco_atual|floatformat:2|intcomma }}</td>
+                        <td class="{% if p.lucro >= 0 %}balance-positive{% else %}balance-negative{% endif %}">
+                            R$ {{ p.lucro|floatformat:2|intcomma }}
+                        </td>
+                        <td>{{ p.percentual|floatformat:1 }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Últimas operações -->
+    <div class="card">
+        <div class="card-header">Últimas Operações</div>
+        <ul class="list-group list-group-flush">
+            {% for op in ultimas_operacoes %}
+            <li class="list-group-item">
+                {{ op.data|date:"d/m/Y" }} - {{ op.tipo }} {{ op.quantidade }} {{ op.ativo }} a R$ {{ op.preco }}
+            </li>
+            {% empty %}
+            <li class="list-group-item text-center text-muted">Nenhuma operação recente</li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 {% endblock %}

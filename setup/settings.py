@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Aplicativos do projeto
-    'carteira'
+    'carteira',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

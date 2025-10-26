@@ -24,4 +24,4 @@ class OperacaoAdmin(admin.ModelAdmin):
 
 @admin.register(Posicao)
 class PosicaoAdmin(admin.ModelAdmin):
-    list_display = ("ativo", "quantidade", "preco_medio", "object_id")
+    list_display = ("ativo", "quantidade", "preco_medio", "object_id", "usuario")

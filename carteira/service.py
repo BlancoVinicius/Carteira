@@ -1,4 +1,5 @@
-
+from carteira.repositories import PosicaoRepository
+from decimal import Decimal, ROUND_DOWN
 
     # Transformando a lista em string separada por espaços
 from typing import Union, List
@@ -34,8 +35,55 @@ class DadosMercado:
             return lista_tickers
 
 
+class DashboardService:
+    
+    def get_resumo_carteira(request):
+        posicoes = PosicaoRepository.get_posicao_all(request.user)
 
+        if not posicoes:
+            return {"posicoes": []}
 
+        lista_tickers = [p.ativo.codigo for p in posicoes]
+        df = DadosMercado.historico(lista_tickers)
+
+        def to_decimal(valor):
+            """Converte para Decimal com 2 casas e ROUND_HALF_UP."""
+            return Decimal(str(valor)).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+
+        # Cálculos agregados
+        valor_investido = sum(p.quantidade * p.preco_medio for p in posicoes)
+        valor_investido = valor_investido.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+
+        valor_atual = sum(
+            p.quantidade * to_decimal(df[p.ativo.codigo + ".SA"]) for p in posicoes
+        )
+        valor_atual = valor_atual.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+
+        lucro = (valor_atual - valor_investido).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+        percentual = (lucro / valor_investido * 100).quantize(Decimal("0.01"), rounding=ROUND_DOWN) if valor_investido > 0 else Decimal("0.00")
+
+        # Atualiza cada posição
+        for p in posicoes:
+            preco_atual = to_decimal(df[p.ativo.codigo + ".SA"])
+            p.preco_atual = preco_atual
+
+            p.lucro = (p.quantidade * (preco_atual - p.preco_medio)).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+
+            base = p.quantidade * p.preco_medio
+            p.percentual = ((p.lucro / base) * 100).quantize(Decimal("0.01"), rounding=ROUND_DOWN) if base > 0 else Decimal("0.00")
+
+        resumo = {
+            "valor_investido": valor_investido,
+            "valor_atual": valor_atual,
+            "lucro": lucro,
+            "percentual": percentual,
+        }
+
+        context = {
+            "resumo": resumo,
+            "posicoes": posicoes,
+        }
+        return context
 
 
 if __name__=="__main__":

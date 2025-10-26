@@ -117,6 +117,7 @@ class Posicao(models.Model):
 
     quantidade = models.DecimalField(max_digits=20, decimal_places=4, default=0)
     preco_medio = models.DecimalField(max_digits=20, decimal_places=6, default=0)
+    usuario = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         db_table = "posicao"
