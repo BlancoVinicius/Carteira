@@ -8,61 +8,61 @@
     "editor.showInlayHints": false,
 
     // Customização de cores para sintaxe
-    "editor.tokenColorCustomizations": {
-        "textMateRules": [
-            {
-                "scope": [
-                    "variable.other.object",
-                    "variable.other.property",
-                    "variable.other.readwrite",
-                    "variable.parameter",
-                    "meta.object-literal.key"
-                ],
-                "settings": {
-                    "foreground": "#f19469"
-                }
-            },
-            {
-                "scope": [
-                    "entity.name.namespace",
-                    "entity.name.type.module",
-                    "support.type.python"
-                ],
-                "settings": {
-                    "foreground": "#dcfdfdcc"
-                }
-            },
-            // {
-            //     "scope": [
-            //         "string.quoted.single",
-            //         "string.quoted.double",
-            //         "string.quoted.triple"
-            //     ],
-            //     "settings": {
-            //         "foreground": "#FFFFFF"
-            //     }
-            // },
-            // {
-            //     "scope": [
-            //         "keyword",
-            //         "keyword.control",
-            //         "storage.type"
-            //     ],
-            //     "settings": {
-            //         "foreground": "#FF6B9D"
-            //     }
-            // },
-            {
-                "scope": [
-                    "entity.name.function",
-                    "support.function"
-                ],
-                "settings": {
-                    "foreground": "#69e984"
-                }
-            }
-        ]
-    },
+    // "editor.tokenColorCustomizations": {
+    //     "textMateRules": [
+    //         {
+    //             "scope": [
+    //                 "variable.other.object",
+    //                 "variable.other.property",
+    //                 "variable.other.readwrite",
+    //                 "variable.parameter",
+    //                 "meta.object-literal.key"
+    //             ],
+    //             "settings": {
+    //                 "foreground": "#f19469"
+    //             }
+    //         },
+    //         {
+    //             "scope": [
+    //                 "entity.name.namespace",
+    //                 "entity.name.type.module",
+    //                 "support.type.python"
+    //             ],
+    //             "settings": {
+    //                 "foreground": "#dcfdfdcc"
+    //             }
+    //         },
+    //         // {
+    //         //     "scope": [
+    //         //         "string.quoted.single",
+    //         //         "string.quoted.double",
+    //         //         "string.quoted.triple"
+    //         //     ],
+    //         //     "settings": {
+    //         //         "foreground": "#FFFFFF"
+    //         //     }
+    //         // },
+    //         // {
+    //         //     "scope": [
+    //         //         "keyword",
+    //         //         "keyword.control",
+    //         //         "storage.type"
+    //         //     ],
+    //         //     "settings": {
+    //         //         "foreground": "#FF6B9D"
+    //         //     }
+    //         // },
+    //         {
+    //             "scope": [
+    //                 "entity.name.function",
+    //                 "support.function"
+    //             ],
+    //             "settings": {
+    //                 "foreground": "#69e984"
+    //             }
+    //         }
+    //     ]
+    // },
 
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",

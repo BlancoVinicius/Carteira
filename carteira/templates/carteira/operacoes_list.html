@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Operações Registradas
+    </div>
+    <div class="card-body">
+        {% if operacoes %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data</th>
+                            <th>Ativo</th>
+                            <th>Tipo</th>
+                            <th>Quantidade</th>
+                            <th>Preço</th>
+                            <th>Corretagem</th>
+                            <th>Emolumentos</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for op in operacoes %}
+                        <tr>
+                            <td>{{ op.data|date:"d/m/Y" }}</td>
+                            <td>{{ op.ativo }}</td>
+                            <td>
+                                {% if op.tipo == "COMPRA" %}
+                                    <span class="badge bg-success">Compra</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Venda</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ op.quantidade|floatformat:0 }}</td>
+                            <td>R$ {{ op.preco|floatformat:2 }}</td>
+                            <td>R$ {{ op.corretagem|floatformat:2 }}</td>
+                            <td>R$ {{ op.emolumentos|floatformat:2 }}</td>
+                            <td>R$ {{ op.total|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center" role="alert">
+                Nenhuma operação registrada ainda.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

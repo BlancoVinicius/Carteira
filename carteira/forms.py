@@ -1,7 +1,7 @@
 from django import forms
-from carteira.models import Acao, Operacao, FII, Opcao
-from django.contrib.contenttypes.models import ContentType
+from carteira.models import Acao, Operacao
 
+from carteira.repositories import AcaoRepository, FIIRepository, OpcaoRepository
 
 class AcaoForm(forms.ModelForm):
     # Sobrescrevendo campos do Model
@@ -33,7 +33,7 @@ class AcaoForm(forms.ModelForm):
             raise forms.ValidationError("Selecione um código válido.")
 
         # verifica se já existe alguma ação com esse código
-        if Acao.objects.filter(codigo=codigo).exists():
+        if  AcaoRepository.get_acao(codigo=codigo).exists():
             raise forms.ValidationError(f"A ação '{codigo}' já está cadastrada.")
 
         return codigo
@@ -64,37 +64,16 @@ class OperacaoForm(forms.ModelForm):
         # Monta as opções de ativos (tuplas: (identificador, nome exibido))
         opcoes = []
 
-        for acao in Acao.objects.all():
+        for acao in AcaoRepository.get_acoes():
             opcoes.append((f"Acao:{acao.id}", f"Ação - {acao}"))
-        for fii in FII.objects.all():
+        for fii in FIIRepository.get_fii_all():
             opcoes.append((f"FII:{fii.id}", f"FII - {fii}"))
-        for opcao in Opcao.objects.all():
+        for opcao in OpcaoRepository.get_opcao_all():
             opcoes.append((f"Opcao:{opcao.id}", f"Opção - {opcao}"))
 
         self.fields["ativo"].choices = opcoes
         self.fields["ativo"].widget.attrs.update({"class": "form-select"})
 
-    def save(self, usuario=None, commit=True):
-        instance = super().save(commit=False)
-
-        ativo_str = self.cleaned_data["ativo"]
-        tipo_model, obj_id = ativo_str.split(":")
-        obj_id = int(obj_id)
-
-        # Mapeia o tipo de ativo para o modelo correspondente
-        model_map = {"Acao": Acao, "FII": FII, "Opcao": Opcao}
-        model = model_map[tipo_model]
-
-        ativo = model.objects.get(id=obj_id)
-
-        # Define content_type e object_id automaticamente
-        instance.content_type = ContentType.objects.get_for_model(model)
-        instance.object_id = ativo.id
-        instance.usuario = usuario
-
-        if commit:
-            instance.save()
-        return instance
 
     def clean_quantidade(self):
         qtd = self.cleaned_data.get("quantidade")
@@ -111,16 +90,3 @@ class OperacaoForm(forms.ModelForm):
             raise forms.ValidationError("Preço deve ser maior que zero.")
 
         return preco
-
-# def clean_codigo(self):
-#     """Valida se o código da ação já existe no banco."""
-#     codigo = self.cleaned_data.get("codigo")
-
-#     if not codigo:
-#         raise forms.ValidationError("Selecione um código válido.")
-
-#     # verifica se já existe alguma ação com esse código
-#     if Acao.objects.filter(codigo=codigo).exists():
-#         raise forms.ValidationError(f"A ação '{codigo}' já está cadastrada.")
-
-#     return codigo

@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
+
 from .forms import AcaoForm, OperacaoForm
+from carteira.repositories import OperacaoRepository, AcaoRepository
 from carteira.service import DadosMercado
 from carteira.models import Posicao
-from django.http import JsonResponse
+
 # Create your views here.
 def index(request):
     return render(request, "carteira/index.html")
@@ -22,7 +25,7 @@ def create_acao(request):
         form = AcaoForm(request.POST)
         if form.is_valid():
             print("Formulário válido")
-            form.save(request.user)
+            acao = AcaoRepository.save(form.cleaned_data, request.user)
             return redirect("carteira:index")  # redireciona após salvar
     else:
         form = AcaoForm()
@@ -35,13 +38,32 @@ def create_operacao(request):
         form = OperacaoForm(request.POST)
         if form.is_valid():
             print("Formulário válido")
-            form.save(usuario=request.user)
+            operacao = OperacaoRepository.save(form.cleaned_data, request.user)
             return redirect("carteira:index")  # redireciona após salvar
     else:
         form = OperacaoForm()
         
     return render(request, "carteira/operacao_form.html", {"form": form})
 
+
+def operacao_list(request):
+    """Lista todas as operações do usuário logado."""
+    operacoes = OperacaoRepository.get_operacoes(request.user).order_by('-data')
+
+    # Calcula o total de cada operação (quantidade * preço)
+    for op in operacoes:
+        op.total = op.quantidade * op.preco
+
+    context = {
+        "operacoes": operacoes,
+    }
+    return render(request, "carteira/operacoes_list.html", context)
+
+
+
+# def operacao_list(request):
+#     operacoes = OperacaoRepository.get_operacoes(request.user)
+#     return render(request, "carteira/operacao_list.html", {"operacoes": operacoes})
 
 def dashboard(request):
     posicoes = Posicao.objects.all()
