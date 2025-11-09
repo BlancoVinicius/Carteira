@@ -1,7 +1,8 @@
+from __future__ import annotations
 from django.contrib.contenttypes.models import ContentType
 from carteira.models import Operacao, Acao, FII, Opcao, Posicao
 
-
+from django.contrib.auth.models import User
 
 # Repositorio de Operacaos
 class OperacaoRepository:
@@ -141,7 +142,7 @@ class OpcaoRepository:
 
 class PosicaoRepository:
     @staticmethod
-    def get_posicao_all(usuario):
+    def get_posicao_all(usuario:User):
         """
         Retorna a posicao do usuario
         :return: QuerySet

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 
 from .forms import AcaoForm, OperacaoForm
-from carteira.repositories import OperacaoRepository, AcaoRepository
+from carteira.repositories import OperacaoRepository, AcaoRepository, PosicaoRepository
 from carteira.service import DashboardService
 
 # Create your views here.
@@ -23,7 +23,7 @@ def create_acao(request):
         form = AcaoForm(request.POST)
         if form.is_valid():
             print("Formulário válido")
-            acao = AcaoRepository.save(form.cleaned_data, request.user)
+            acao = AcaoRepository.save(form.cleaned_data)
             return redirect("carteira:index")  # redireciona após salvar
     else:
         form = AcaoForm()
@@ -65,3 +65,16 @@ def dashboard(request):
         return render(request, "carteira/dashboard.html", {"posicoes": []})
 
     return render(request, "carteira/dashboard.html", context)
+
+def posicoes_list(request):
+    """Lista todas as posições do usuário logado."""
+    posicoes = PosicaoRepository.get_posicao_all(request.user)
+
+    for p in posicoes:
+        p.lucro = p.valor_atual - (p.quantidade * p.preco_medio)
+        p.rendimento = (p.lucro / (p.quantidade * p.preco_medio)) * 100 if p.quantidade * p.preco_medio != 0 else 0
+
+    context = {
+        "posicoes": posicoes,
+    }
+    return render(request, "carteira/posicoes_list.html", context)

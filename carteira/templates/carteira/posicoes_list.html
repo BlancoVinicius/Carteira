@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Posições</h2>
+
+  {% if posicoes %}
+  <table class="table table-striped table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Ativo</th>
+        <th class="text-end">Quantidade</th>
+        <th class="text-end">Preço Médio</th>
+        <th class="text-end">Valor Atual</th>
+        <th class="text-end">Lucro / Prejuízo</th>
+        <th class="text-end">Rendimento</th>
+        <th class="text-center">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in posicoes %}
+      <tr>
+        <td>{{ p.ativo }}</td>
+        <td class="text-end">{{ p.quantidade|floatformat:2|intcomma }}</td>
+        <td class="text-end">R$ {{ p.preco_medio|floatformat:2|intcomma }}</td>
+        <td class="text-end">R$ {{ p.valor_atual|floatformat:2|intcomma }}</td>
+
+        <td class="text-end {% if p.lucro >= 0 %}text-success{% else %}text-danger{% endif %}">
+        R$ {{ p.lucro|floatformat:2|intcomma }}
+        </td>
+        <td class="text-end {% if p.rendimento >= 0 %}text-success{% else %}text-danger{% endif %}">
+        {{ p.rendimento|floatformat:2 }}%
+        </td>
+
+
+        <td class="text-center">
+          <a href="#" class="btn btn-sm btn-outline-primary">Ver</a>
+          <a href="#" class="btn btn-sm btn-outline-secondary">Editar</a>
+          <a href="#" class="btn btn-sm btn-outline-danger">Excluir</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-info text-center">
+    Nenhuma posição cadastrada ainda.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+
+        {% comment %} <td class="text-center">
+          <a href="{% url 'carteira:posicao_detalhe' p.id %}" class="btn btn-sm btn-outline-primary">Ver</a>
+          <a href="{% url 'carteira:posicao_editar' p.id %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+          <a href="{% url 'carteira:posicao_excluir' p.id %}" class="btn btn-sm btn-outline-danger">Excluir</a>
+        </td> {% endcomment %}
