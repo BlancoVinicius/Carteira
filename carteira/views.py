@@ -77,4 +77,4 @@ def posicoes_list(request):
     context = {
         "posicoes": posicoes,
     }
-    return render(request, "carteira/posicoes_list.html", context)
+    return render(request, "carteira/posicoes2.html", context)

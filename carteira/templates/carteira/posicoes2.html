@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">Posições da Carteira</h3>
+        <div>
+            <button id="btn-lista" class="btn btn-outline-primary btn-sm active">Lista</button>
+            <button id="btn-cards" class="btn btn-outline-primary btn-sm">Cards</button>
+        </div>
+    </div>
+
+    {% if posicoes %}
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <strong>Resumo de Posições</strong>
+        </div>
+
+        <!-- VISUALIZAÇÃO EM LISTA -->
+        <div id="view-lista" class="card-body table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ativo</th>
+                        <th class="text-end">Quantidade</th>
+                        <th class="text-end">Preço Médio</th>
+                        <th class="text-end">Valor Atual</th>
+                        <th class="text-end">Lucro / Prejuízo</th>
+                        <th class="text-end">Rendimento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in posicoes %}
+                    <tr>
+                        <td class="fw-semibold">{{ p.ativo }}</td>
+                        <td class="text-end">{{ p.quantidade|floatformat:0|intcomma }}</td>
+                        <td class="text-end">R$ {{ p.preco_medio|floatformat:2|intcomma }}</td>
+                        <td class="text-end">R$ {{ p.valor_atual|floatformat:2|intcomma }}</td>
+                        <td class="text-end {% if p.lucro >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            R$ {{ p.lucro|floatformat:2|intcomma }}
+                        </td>
+                        <td class="text-end {% if p.rendimento >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {{ p.rendimento|floatformat:2 }}%
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- VISUALIZAÇÃO EM CARDS -->
+        <div id="view-cards" class="card-body d-none">
+            <div class="row g-3">
+                {% for p in posicoes %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="card-title fw-semibold">{{ p.ativo }}</h5>
+                            <hr>
+                            <p class="mb-1"><strong>Quantidade:</strong> {{ p.quantidade|floatformat:0|intcomma }}</p>
+                            <p class="mb-1"><strong>Preço Médio:</strong> R$ {{ p.preco_medio|floatformat:2|intcomma }}</p>
+                            <p class="mb-1"><strong>Valor Atual:</strong> R$ {{ p.valor_atual|floatformat:2|intcomma }}</p>
+                            <p class="mb-1 {% if p.lucro >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                <strong>Lucro / Prejuízo:</strong> R$ {{ p.lucro|floatformat:2|intcomma }}
+                            </p>
+                            <p class="mb-0 {% if p.rendimento >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                <strong>Rendimento:</strong> {{ p.rendimento|floatformat:2 }}%
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center shadow-sm">
+        Nenhuma posição cadastrada ainda.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Estilo -->
+<style>
+    h3 {
+        color: #0d6efd;
+        font-weight: 600;
+    }
+
+    .card-header {
+        background: linear-gradient(90deg, #0d6efd, #0b5ed7);
+        font-size: 1rem;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: 0.2s ease-in-out;
+    }
+
+    .btn-outline-primary.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+
+    .card-title {
+        color: #0d6efd;
+    }
+
+    .card {
+        transition: transform 0.15s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+    }
+</style>
+
+<!-- Script para alternar modos -->
+<script>
+    const btnLista = document.getElementById("btn-lista");
+    const btnCards = document.getElementById("btn-cards");
+    const viewLista = document.getElementById("view-lista");
+    const viewCards = document.getElementById("view-cards");
+
+    btnLista.addEventListener("click", () => {
+        viewLista.classList.remove("d-none");
+        viewCards.classList.add("d-none");
+        btnLista.classList.add("active");
+        btnCards.classList.remove("active");
+    });
+
+    btnCards.addEventListener("click", () => {
+        viewCards.classList.remove("d-none");
+        viewLista.classList.add("d-none");
+        btnCards.classList.add("active");
+        btnLista.classList.remove("active");
+    });
+</script>
+{% endblock %}
