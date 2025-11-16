@@ -1,5 +1,5 @@
-from django import forms
 from carteira.models import Acao, Operacao, Opcao
+from django import forms
 
 from carteira.repositories import AcaoRepository, FIIRepository, OpcaoRepository
 
@@ -129,3 +129,4 @@ class OpcaoForm(forms.ModelForm):
             raise forms.ValidationError(f"A opção '{codigo}' já está cadastrada.")
 
         return codigo
+    

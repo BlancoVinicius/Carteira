@@ -103,7 +103,7 @@
         <div class="container">
             
             <!-- Lado esquerdo -->
-            <a class="navbar-brand" href="{% url 'carteira:index' %}">
+            <a class="navbar-brand" href="{% url 'contas:index' %}">
                 Carteira de Ativos
             </a>
 
@@ -137,7 +137,7 @@
                             <li><hr class="dropdown-divider"></li>
 
                             <li>
-                                <a class="dropdown-item text-danger fw-bold" href="{% url "carteira:logout" %}">Sair</a>
+                                <a class="dropdown-item text-danger fw-bold" href="{% url "contas:logout" %}">Sair</a>
                             </li>
                         </ul>
                     </li>
@@ -145,11 +145,11 @@
                     {% else %}
                     <!-- NÃO LOGADO -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'carteira:login' %}">Login</a>
+                        <a class="nav-link" href="{% url 'contas:login' %}">Login</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'carteira:register' %}">Register</a>
+                        <a class="nav-link" href="{% url 'contas:register' %}">Register</a>
                     </li>
                     {% endif %}
 

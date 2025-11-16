@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -8,27 +9,39 @@
                 <h4 class="mb-0">Create an Account</h4>
             </div>
             <div class="card-body">
-                <form method="POST" action="#">
+                <form method="POST" action="{% url "contas:register" %}">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
+                        <label for="username" class="form-label">Usuário</label>
                         <input type="text" class="form-control" id="username" name="username" required>
+                        {% for error in form.username.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" required>
+                        {% for error in form.email.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <label for="password" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="password1" name="password1" required>
                         <div class="form-text">Password must be at least 6 characters long.</div>
+                        {% for error in form.password1.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <div class="mb-3">
-                        <label for="confirm_password" class="form-label">Confirm Password</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        <label for="confirm_password" class="form-label">Confirme Senha</label>
+                        <input type="password" class="form-control" id="password2" name="password2" required>
+                        {% for error in form.password2.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <div class="d-grid gap-2">
@@ -37,7 +50,7 @@
                 </form>
                 
                 <div class="text-center mt-3">
-                    <p class="mb-0">Already have an account? <a href="{% url 'carteira:login' %}">Login here</a></p>
+                    <p class="mb-0">Already have an account? <a href="{% url 'contas:login' %}">Login here</a></p>
                 </div>
             </div>
         </div>

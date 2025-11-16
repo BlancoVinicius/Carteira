@@ -2,35 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import AcaoForm, OperacaoForm, OpcaoForm
 from carteira.repositories import OperacaoRepository, AcaoRepository, PosicaoRepository, OpcaoRepository
-from carteira.service import DashboardService, LoginService
-from django.conf import settings
+from carteira.service import DashboardService
+
 # Create your views here.
-
-def index(request):
-    
-    if request.user.is_authenticated:
-        return redirect("carteira:dashboard")
-
-    return render(request, "carteira/index.html")
-
-
-def login(request):
-    
-    if request.user.is_authenticated:
-        return redirect(settings.LOGIN_REDIRECT_URL)
-
-    if LoginService.login_user(request):
-        return redirect(settings.LOGIN_REDIRECT_URL)
-    return render(request, "carteira/login.html")
-
-def register(request):
-    return render(request, "carteira/register.html")
-
-@login_required
-def logout(request):
-    if request.user.is_authenticated:
-        LoginService.logout_user(request)
-    return redirect(settings.LOGOUT_REDIRECT_URL)
 
 @login_required
 def create_acao(request):

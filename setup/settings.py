@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # Aplicativos do projeto
     'carteira',
     'django.contrib.humanize',
+    'contas',
 ]
 
 MIDDLEWARE = [
@@ -127,5 +128,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/carteira/dashboard/'
-LOGOUT_REDIRECT_URL = '/carteira/'
-LOGIN_URL = '/carteira/login/'
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
+
+AUTH_USER_MODEL = 'contas.User'
