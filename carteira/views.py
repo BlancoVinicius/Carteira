@@ -3,12 +3,17 @@ from .forms import AcaoForm, OperacaoForm
 from carteira.service import DadosMercado
 from carteira.models import Posicao
 from django.http import JsonResponse
+
+from carteira.service import LoginService
 # Create your views here.
 def index(request):
     return render(request, "carteira/index.html")
 
 
 def login(request):
+    if LoginService.login_user(request):
+        return redirect("carteira:dashboard")
+    
     return render(request, "carteira/login.html")
 
 
@@ -59,5 +64,5 @@ def dashboard(request):
             "cotacao":f"{df[posicao.ativo.codigo + ".SA"]:.2f}",
         }
 
-    return JsonResponse(dados)
-    # return render(request, "carteira/dashboard.html", {"dados": dados})
+    # return JsonResponse(dados)
+    return render(request, "carteira/dashboard.html", {"dados": dados})
