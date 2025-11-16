@@ -1,5 +1,25 @@
 {% extends "base.html" %}
 
+{% block itens_menu_suspenso %}
+    <li>
+        <a class="dropdown-item bg-success text-white" href="{% url "carteira:dashboard" %}">Dashboard</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:create_operacao" %}">Adicionar Operação</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:create_acao" %}">Adicionar Ativo</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:posicoes" %}">Listar Posições</a>
+    </li>
+    
+ {% endblock %}
+
+
 {% block content %}
 <div class="card">
     <div class="card-header">

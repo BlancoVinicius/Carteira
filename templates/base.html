@@ -39,18 +39,37 @@
             color: #dc3545;
             font-weight: bold;
         }
+        .navbar-brand {
+            font-weight: bold;
+            color: #00b9a3 !important;
+        }
+
+        .dropdown-menu {
+            border-radius: 8px;
+            border: 1px solid #e3e3e3;
+        }
+
+        .dropdown-item:hover {
+            background-color: #e8f8f6;
+        }
+
+        .nav-link.dropdown-toggle {
+            color: #00b9a3 !important;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4">
+    {% comment %} <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4">
         <div class="container">
-            <a class="navbar-brand" href="#">Carteira de Ativos</a>
+            <a class="navbar-brand" href="{% url "carteira:index" %}">Carteira de Ativos</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon">Tete</span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    {% if current_user.is_authenticated %}
+                    {% if request.user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="#">Dashboard</a>
                         </li>
@@ -60,9 +79,9 @@
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">
-                    {% if current_user.is_authenticated %}
+                    {% if request.user.is_authenticated %}
                         <li class="nav-item">
-                            <span class="nav-link">Welcome, {{ current_user.username }}</span>
+                            <span class="nav-link">Welcome, {{ request.user.username }}</span>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Logout</a>
@@ -78,7 +97,68 @@
                 </ul>
             </div>
         </div>
+    </nav> {% endcomment %}
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4 shadow-sm">
+        <div class="container">
+            
+            <!-- Lado esquerdo -->
+            <a class="navbar-brand" href="{% url 'carteira:index' %}">
+                Carteira de Ativos
+            </a>
+
+            <!-- Botão mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Conteúdo -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                
+                <!-- Esquerda vazia / espaço para crescer -->
+                <ul class="navbar-nav me-auto">
+                    <!-- Se você quiser colocar links visíveis para todos, coloque aqui -->
+                </ul>
+
+                <!-- Direita -->
+                <ul class="navbar-nav">
+
+                    {% if request.user.is_authenticated %}
+                    <!-- MENU DO USUÁRIO -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle fw-semibold" href="#" id="userMenu"
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Olá, {{ request.user.username }}
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            {% block itens_menu_suspenso %}{% endblock %}
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li>
+                                <a class="dropdown-item text-danger fw-bold" href="{% url "carteira:logout" %}">Sair</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    {% else %}
+                    <!-- NÃO LOGADO -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'carteira:login' %}">Login</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'carteira:register' %}">Register</a>
+                    </li>
+                    {% endif %}
+
+                </ul>
+
+            </div>
+        </div>
     </nav>
+
 
     <div class="container">
         {% comment %} {% with messages = get_flashed_messages(with_categories=true) %}

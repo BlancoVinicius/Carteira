@@ -45,7 +45,10 @@ class DashboardService:
         if not posicoes:
             return {"posicoes": []}
 
-        lista_tickers = [p.ativo.codigo for p in posicoes]
+        from carteira.models import Acao
+        
+        lista_tickers = [p.ativo.codigo for p in posicoes if isinstance(p.ativo, Acao)]
+
         df = DadosMercado.historico(lista_tickers)
 
         def to_decimal(valor):
@@ -57,7 +60,7 @@ class DashboardService:
         valor_investido = valor_investido.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
 
         valor_atual = sum(
-            p.quantidade * to_decimal(df[p.ativo.codigo + ".SA"]) for p in posicoes
+            p.quantidade * to_decimal(df[p.ativo.codigo + ".SA"]) for p in posicoes if isinstance(p.ativo, Acao)
         )
         valor_atual = valor_atual.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
 
@@ -66,7 +69,7 @@ class DashboardService:
 
         # Atualiza cada posição
         for p in posicoes:
-            preco_atual = to_decimal(df[p.ativo.codigo + ".SA"])
+            preco_atual = to_decimal(df[p.ativo.codigo + ".SA"]) if isinstance(p.ativo, Acao) else Decimal("0.00")
             p.preco_atual = preco_atual
 
             p.lucro = (p.quantidade * (preco_atual - p.preco_medio)).quantize(Decimal("0.01"), rounding=ROUND_DOWN)

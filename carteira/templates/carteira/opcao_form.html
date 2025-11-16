@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block itens_menu_suspenso %}
+    <li><a class="dropdown-item" href="{% url 'carteira:dashboard' %}">Dashboard</a></li>
+    <li><a class="dropdown-item" href="{% url 'carteira:create_operacao' %}">Adicionar Operação</a></li>
+    <li><a class="dropdown-item" href="{% url 'carteira:create_acao' %}">Adicionar Ativo</a></li>
+    <li><a class="dropdown-item bg-success text-white" href="{% url 'carteira:create_opcao' %}">Adicionar Opção</a></li>
+    <li><a class="dropdown-item" href="{% url 'carteira:posicoes' %}">Listar Posições</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header text-white">
+            <h4>Cadastrar Opção</h4>
+        </div>
+
+        <div class="card-body">
+            <form method="post" action="{% url 'carteira:create_opcao' %}">
+                {% csrf_token %}
+
+                <!-- Código -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.codigo.label }}</label>
+                    {{ form.codigo }}
+                    {% if form.codigo.errors %}
+                        <div class="text-danger small">{{ form.codigo.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Tipo de opção -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.tipo_opcao.label }}</label>
+                    {{ form.tipo_opcao }}
+                    {% if form.tipo_opcao.errors %}
+                        <div class="text-danger small">{{ form.tipo_opcao.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Descrição -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.descricao.label }}</label>
+                    {{ form.descricao }}
+                    {% if form.descricao.errors %}
+                        <div class="text-danger small">{{ form.descricao.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Modelo -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.modelo.label }}</label>
+                    {{ form.modelo }}
+                    {% if form.modelo.errors %}
+                        <div class="text-danger small">{{ form.modelo.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Strike -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.strike.label }}</label>
+                    {{ form.strike }}
+                    {% if form.strike.errors %}
+                        <div class="text-danger small">{{ form.strike.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Vencimento -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.vencimento.label }}</label>
+                    {{ form.vencimento }}
+                    {% if form.vencimento.errors %}
+                        <div class="text-danger small">{{ form.vencimento.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <a href="{% url 'carteira:index' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

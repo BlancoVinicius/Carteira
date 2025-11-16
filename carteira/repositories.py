@@ -121,7 +121,7 @@ class OpcaoRepository:
         return Opcao.objects.all()
 
     @staticmethod
-    def get_opcao(codigo):
+    def get_opcao(codigo:str):
         """
         Retorna a opcao do usuario
         :param codigo: str

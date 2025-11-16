@@ -1,5 +1,25 @@
 {% extends "base.html" %}
 {% load humanize %}
+
+{% block itens_menu_suspenso %}
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:dashboard" %}">Dashboard</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:create_operacao" %}">Adicionar Operação</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:create_acao" %}">Adicionar Ativo</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item bg-success text-white" href="{% url "carteira:posicoes" %}">Listar Posições</a>
+    </li>
+    
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -12,7 +32,7 @@
 
     {% if posicoes %}
     <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header text-white">
             <strong>Resumo de Posições</strong>
         </div>
 

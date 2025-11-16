@@ -1,11 +1,16 @@
 from django.shortcuts import render, redirect
-
-from .forms import AcaoForm, OperacaoForm
-from carteira.repositories import OperacaoRepository, AcaoRepository, PosicaoRepository
+from django.contrib.auth.decorators import login_required
+from .forms import AcaoForm, OperacaoForm, OpcaoForm
+from carteira.repositories import OperacaoRepository, AcaoRepository, PosicaoRepository, OpcaoRepository
 from carteira.service import DashboardService, LoginService
 from django.conf import settings
 # Create your views here.
+
 def index(request):
+    
+    if request.user.is_authenticated:
+        return redirect("carteira:dashboard")
+
     return render(request, "carteira/index.html")
 
 
@@ -21,11 +26,13 @@ def login(request):
 def register(request):
     return render(request, "carteira/register.html")
 
+@login_required
 def logout(request):
     if request.user.is_authenticated:
         LoginService.logout_user(request)
     return redirect(settings.LOGOUT_REDIRECT_URL)
 
+@login_required
 def create_acao(request):
 
     if request.method == "POST":
@@ -39,7 +46,21 @@ def create_acao(request):
 
     return render(request, "carteira/acao_form.html", {"form": form})
 
+@login_required
+def create_opcao(request):
 
+    if request.method == "POST":
+        form = OpcaoForm(request.POST)
+        if form.is_valid():
+            print("Formulário válido")
+            opcao = OpcaoRepository.save(form.cleaned_data)
+            return redirect("carteira:index")  # redireciona após salvar
+    else:
+        form = OpcaoForm()
+
+    return render(request, "carteira/opcao_form.html", {"form": form})
+
+@login_required
 def create_operacao(request):
     if request.method == "POST":
         form = OperacaoForm(request.POST)
@@ -52,7 +73,7 @@ def create_operacao(request):
         
     return render(request, "carteira/operacao_form.html", {"form": form})
 
-
+@login_required
 def operacao_list(request):
     """Lista todas as operações do usuário logado."""
     operacoes = OperacaoRepository.get_operacoes(request.user).order_by('-data')
@@ -66,7 +87,7 @@ def operacao_list(request):
     }
     return render(request, "carteira/operacoes_list.html", context)
 
-
+@login_required
 def dashboard(request):
     context = DashboardService.get_resumo_carteira(request)
 
@@ -75,6 +96,7 @@ def dashboard(request):
 
     return render(request, "carteira/dashboard.html", context)
 
+@login_required
 def posicoes_list(request):
     """Lista todas as posições do usuário logado."""
     posicoes = PosicaoRepository.get_posicao_all(request.user)
@@ -86,4 +108,4 @@ def posicoes_list(request):
     context = {
         "posicoes": posicoes,
     }
-    return render(request, "carteira/posicoes2.html", context)
+    return render(request, "carteira/posicoes.html", context)

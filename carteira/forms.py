@@ -1,5 +1,5 @@
 from django import forms
-from carteira.models import Acao, Operacao
+from carteira.models import Acao, Operacao, Opcao
 
 from carteira.repositories import AcaoRepository, FIIRepository, OpcaoRepository
 
@@ -90,3 +90,42 @@ class OperacaoForm(forms.ModelForm):
             raise forms.ValidationError("Preço deve ser maior que zero.")
 
         return preco
+
+
+class OpcaoForm(forms.ModelForm):
+    
+    codigo = forms.ChoiceField(label="Código da Ação")
+
+    class Meta:
+        model = Opcao
+        fields = ["codigo", "tipo_opcao", "descricao", "modelo", "strike", "vencimento"]
+        widgets = {
+            "vencimento": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # lista de códigos válidos
+        lista_codigos = ["PETRW200", "VALEX210", "ITUBL315", "BBDCX220"]
+
+        # gera a lista de opções para o <select>
+        self.fields["codigo"].choices = [(c, c) for c in lista_codigos]
+        self.fields["codigo"].choices.insert(0, ("", "Selecione um código"))
+
+        # Aplica classe Bootstrap
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})
+
+    def clean_codigo(self):
+        """Valida se o código da ação já existe no banco."""
+        codigo = self.cleaned_data.get("codigo")
+
+        if not codigo:
+            raise forms.ValidationError("Selecione um código válido.")
+
+        # verifica se já existe alguma ação com esse código
+        if  OpcaoRepository.get_opcao(codigo=codigo).exists():
+            raise forms.ValidationError(f"A opção '{codigo}' já está cadastrada.")
+
+        return codigo
