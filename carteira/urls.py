@@ -6,6 +6,7 @@ app_name = "carteira"
 urlpatterns = [
     path("", views.index, name="index"),
     path("login/", views.login, name="login"),
+    path("logout/", views.logout, name="logout"),
     path("register/", views.register, name="register"),
     path("criar_acao/", views.create_acao, name="create_acao"),
     path("criar_operacao/", views.create_operacao, name="create_operacao"),
