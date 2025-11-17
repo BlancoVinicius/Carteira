@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Entrar</h4>
+            </div>
+
+            <div class="card-body">
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="{% url 'account_login' %}">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label" class="form-label">Email ou Usuário</label>
+                        <input type="text" class="form-control"
+                         name="login"
+                         placeholder="Nome de usuário"
+                         autocomplete="username"
+                         maxlength="150"
+                         required
+                         id="id_login">
+                        
+                        {% if form.login.errors %}
+                            <div class="text-danger small">{{ form.login.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Senha</label>
+                        <input type="password"
+                        class="form-control"
+                        name="password"
+                        placeholder="Senha"
+                        autocomplete="current-password"
+                        required
+                        aria-describedby="id_password_helptext"
+                        id="id_password">
+                        {% if form.password.errors %}
+                            <div class="text-danger small">{{ form.password.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form.remember }}
+                        <label class="form-check-label">Lembrar-me</label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                    </div>
+                </form>
+
+                <hr>
+
+                <div class="text-center">
+                    <a href="{% url 'account_reset_password' %}">Esqueci minha senha</a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
