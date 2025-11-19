@@ -143,5 +143,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/carteira/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
-LOGIN_URL = 'accounts/login/'
+LOGIN_URL = 'account_login'
 
+ACCOUNT_FORMS = {
+    'signup': 'contas.forms.CustomSignupForm',
+}
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
+
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+ACCOUNT_EMAIL_VERIFICATION = "none"

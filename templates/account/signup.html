@@ -1,45 +1,84 @@
-{% extends "account/base_entrance.html" %}
+{% extends "base.html" %}
+
 {% load allauth i18n %}
-{% block head_title %}
-    {% trans "Signup" %}
-{% endblock head_title %}
+
+{% block head_title %}{% trans "Criar Conta" %}{% endblock head_title %}
+
 {% block content %}
-    {% element h1 %}
-        {% trans "Sign Up" %}
-    {% endelement %}
-    {% setvar link %}
-        <a href="{{ login_url }}">
-        {% endsetvar %}
-        {% setvar end_link %}
-        </a>
-    {% endsetvar %}
-    {% element p %}
-        {% blocktranslate %}Already have an account? Then please {{ link }}sign in{{ end_link }}.{% endblocktranslate %}
-    {% endelement %}
-    {% if not SOCIALACCOUNT_ONLY %}
-        {% url 'account_signup' as action_url %}
-        {% element form form=form method="post" action=action_url tags="entrance,signup" %}
-            {% slot body %}
-                {% csrf_token %}
-                {% element fields form=form unlabeled=True %}
-                {% endelement %}
-                {{ redirect_field }}
-            {% endslot %}
-            {% slot actions %}
-                {% element button tags="prominent,signup" type="submit" %}
-                    {% trans "Sign Up" %}
-                {% endelement %}
-            {% endslot %}
-        {% endelement %}
-    {% endif %}
-    {% if PASSKEY_SIGNUP_ENABLED %}
-        {% element hr %}
-        {% endelement %}
-        {% element button href=signup_by_passkey_url tags="prominent,signup,outline,primary" %}
-            {% trans "Sign up using a passkey" %}
-        {% endelement %}
-    {% endif %}
-    {% if SOCIALACCOUNT_ENABLED %}
-        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
-    {% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Criar Conta</h4>
+            </div>
+
+            <div class="card-body">
+                <p>
+                    Já possui uma conta?
+                    <a href="{{ login_url }}">Entrar</a>
+                </p>
+
+                {% if not SOCIALACCOUNT_ONLY %}
+                    {% url 'account_signup' as action_url %}
+                    <form method="post" action="{{ action_url }}">
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                            <div class="mb-3">
+
+                                <!-- Label -->
+                                {% if field.label %}
+                                    <label class="form-label" for="{{ field.id_for_label }}">
+                                        {{ field.label }}
+                                    </label>
+                                {% endif %}
+
+                                <!-- Input -->
+                                {{ field }}
+
+                                <!-- Mensagens de regras / help_text -->
+                                {% if field.help_text %}
+                                    <div class="form-text text-muted small">
+                                        {{ field.help_text|safe }}
+                                    </div>
+                                {% endif %}
+
+                                <!-- Erros do campo -->
+                                {% if field.errors %}
+                                    <div class="text-danger small">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        {{ redirect_field }}
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                Cadastrar
+                            </button>
+                        </div>
+                    </form>
+                {% endif %}
+
+                {% if PASSKEY_SIGNUP_ENABLED %}
+                    <hr>
+                    <a href="{{ signup_by_passkey_url }}" class="btn btn-outline-primary w-100">
+                        Cadastrar usando Passkey
+                    </a>
+                {% endif %}
+
+                {% if SOCIALACCOUNT_ENABLED %}
+                    <hr>
+                    {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
