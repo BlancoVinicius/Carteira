@@ -14,7 +14,7 @@ def create_acao(request):
         if form.is_valid():
             print("Formulário válido")
             acao = AcaoRepository.save(form.cleaned_data)
-            return redirect("carteira:index")  # redireciona após salvar
+            return redirect("carteira:dashboard")  # redireciona após salvar
     else:
         form = AcaoForm()
 
@@ -28,7 +28,7 @@ def create_opcao(request):
         if form.is_valid():
             print("Formulário válido")
             opcao = OpcaoRepository.save(form.cleaned_data)
-            return redirect("carteira:index")  # redireciona após salvar
+            return redirect("carteira:dashboard")  # redireciona após salvar
     else:
         form = OpcaoForm()
 

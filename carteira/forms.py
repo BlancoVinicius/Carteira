@@ -5,7 +5,12 @@ from carteira.repositories import AcaoRepository, FIIRepository, OpcaoRepository
 
 class AcaoForm(forms.ModelForm):
     # Sobrescrevendo campos do Model
-    codigo = forms.ChoiceField(label="Código da Ação")
+    # codigo = forms.ChoiceField(label="Código da Ação")
+
+    codigo = forms.CharField(
+        label="Código da Ação",
+        widget=forms.TextInput(attrs={"class": "form-control", "list": "lista_codigos"}),
+    )
 
     class Meta:
         model = Acao
@@ -16,7 +21,8 @@ class AcaoForm(forms.ModelForm):
 
         # lista de códigos válidos
         lista_codigos = ["PETR4", "VALE3", "ITUB4", "BBDC3"]
-
+        self.lista_codigos = lista_codigos
+        
         # gera a lista de opções para o <select>
         self.fields["codigo"].choices = [(c, c) for c in lista_codigos]
         self.fields["codigo"].choices.insert(0, ("", "Selecione um código"))
@@ -26,6 +32,10 @@ class AcaoForm(forms.ModelForm):
             field.widget.attrs.update({"class": "form-control"})
 
     def clean_codigo(self):
+        valor = self.cleaned_data["codigo"]
+        # Aceita qualquer valor digitado
+        return valor
+        
         """Valida se o código da ação já existe no banco."""
         codigo = self.cleaned_data.get("codigo")
 
