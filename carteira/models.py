@@ -111,7 +111,7 @@ class Operacao(models.Model):
 # Posições genéricas
 # -------------------------
 class Posicao(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.PositiveIntegerField()
     ativo = GenericForeignKey("content_type", "object_id")
 
@@ -123,6 +123,7 @@ class Posicao(models.Model):
         db_table = "posicao"
         verbose_name = "Posicao"
         verbose_name_plural = "Posicoes"
+        unique_together = ("content_type", "object_id", "usuario")
 
     def __str__(self):
         return f"Posição {self.ativo}: {self.quantidade} @ {self.preco_medio}"

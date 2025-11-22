@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from carteira.models import Operacao, Acao, FII, Opcao, Posicao
 
 from django.contrib.auth.models import User
+from django.utils.timezone import localdate as date_today
 
 # Repositorio de Operacaos
 class OperacaoRepository:
@@ -31,6 +32,27 @@ class OperacaoRepository:
 
         operacao.save()
         return operacao
+    
+    @staticmethod
+    def finalizar_posicao(posicao:Posicao, usuario:User) -> bool:
+        """
+        Finaliza todas as operações associadas a uma posição, definindo sua quantidade como zero.
+        :param posicao: Posicao
+        :param usuario: User
+        :return: None
+        """
+        operacao = Operacao.objects.create(
+            usuario=usuario,
+            ativo=posicao.ativo,
+            quantidade=posicao.quantidade,
+            preco=0,
+            data=date_today(),
+            tipo="VENDA" if posicao.quantidade > 0 else "COMPRA",
+        )
+
+        if operacao:
+            return True
+        return False
 
     @staticmethod
     def get_operacoes(usuario):
@@ -39,7 +61,7 @@ class OperacaoRepository:
         :param usuario: User
         :return: QuerySet
         """
-        return Operacao.objects.filter(usuario=usuario)
+        return Operacao.objects.filter(usuario=usuario).order_by('-data')
 
     @staticmethod
     def get_operacao(usuario, ativo):
@@ -141,13 +163,14 @@ class OpcaoRepository:
         return opcao
 
 class PosicaoRepository:
+
     @staticmethod
-    def get_posicao_all(usuario:User):
+    def get_posicao_all_open(usuario:User):
         """
         Retorna a posicao do usuario
         :return: QuerySet
         """
-        return Posicao.objects.filter(usuario=usuario)
+        return Posicao.objects.filter(usuario=usuario, quantidade__gt=0)
 
     @staticmethod
     def get_posicao(usuario, ativo):
@@ -160,7 +183,20 @@ class PosicaoRepository:
         return Posicao.objects.filter(usuario=usuario, ativo=ativo)
 
     @staticmethod
-    def save(usuario, dados_form):
+    def get_posicao_by_id(usuario:User, id:int) -> Posicao | None:
+        """
+        Retorna a posicao do usuario pelo id
+        :param id: int
+        :param usuario: User
+        :return: Posicao | None
+        """
+        try:
+            return Posicao.objects.get(id=id, usuario=usuario)
+        except Posicao.DoesNotExist:
+            return None
+
+    @staticmethod
+    def save(usuario, dados_form) -> Posicao:
         """
         Salva uma posicao no banco a partir dos dados validados do formulário.
         :param usuario: User
@@ -171,3 +207,12 @@ class PosicaoRepository:
         posicao.usuario = usuario
         posicao.save()
         return posicao
+    
+    @staticmethod
+    def delete(posicao:Posicao) -> None:
+        """
+        Deleta uma posicao do banco.
+        :param posicao: Posicao
+        :return: None
+        """
+        posicao.delete()

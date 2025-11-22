@@ -32,10 +32,6 @@ class AcaoForm(forms.ModelForm):
             field.widget.attrs.update({"class": "form-control"})
 
     def clean_codigo(self):
-        valor = self.cleaned_data["codigo"]
-        # Aceita qualquer valor digitado
-        return valor
-        
         """Valida se o código da ação já existe no banco."""
         codigo = self.cleaned_data.get("codigo")
 
@@ -104,7 +100,11 @@ class OperacaoForm(forms.ModelForm):
 
 class OpcaoForm(forms.ModelForm):
     
-    codigo = forms.ChoiceField(label="Código da Ação")
+    # codigo = forms.ChoiceField(label="Código da Ação")
+    codigo = forms.CharField(
+        label="Código da Opção",
+        widget=forms.TextInput(attrs={"class": "form-control", "list": "lista_codigos"}),
+    )
 
     class Meta:
         model = Opcao
@@ -118,6 +118,7 @@ class OpcaoForm(forms.ModelForm):
 
         # lista de códigos válidos
         lista_codigos = ["PETRW200", "VALEX210", "ITUBL315", "BBDCX220"]
+        self.lista_codigos = lista_codigos
 
         # gera a lista de opções para o <select>
         self.fields["codigo"].choices = [(c, c) for c in lista_codigos]

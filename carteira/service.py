@@ -1,9 +1,11 @@
-from carteira.repositories import PosicaoRepository
+from carteira.repositories import PosicaoRepository, OperacaoRepository
 from decimal import Decimal, ROUND_DOWN
 
     # Transformando a lista em string separada por espaços
 from typing import Union, List
 import yfinance as yf
+from carteira.forms import OperacaoForm
+from django.utils.timezone import localdate as date_today
 
 class DadosMercado:
     
@@ -38,7 +40,7 @@ class DadosMercado:
 class DashboardService:
     
     def get_resumo_carteira(request):
-        posicoes = PosicaoRepository.get_posicao_all(request.user)
+        posicoes = PosicaoRepository.get_posicao_all_open(request.user)
 
         if not posicoes:
             return {"posicoes": []}
@@ -88,7 +90,31 @@ class DashboardService:
         }
         return context
 
+class PosicaoService:
+    
+    @staticmethod
+    def finish_posicao(request, id):
+        """
+        Finaliza uma posicao, definindo sua quantidade como zero.
+        :param posicao: Posicao
+        :return: None
+        """
+        posicao = PosicaoRepository.get_posicao_by_id(request.user, id)
 
-if __name__=="__main__":
-    lista_br = ["PETR4", "VALE3", "ABEV3"]
-    d = DadosMercado.historico(lista_br)
+        if posicao:
+            return OperacaoRepository.finalizar_posicao(posicao, request.user)
+        return False 
+
+    @staticmethod
+    def teste_posicao_form_transition(request, id) -> OperacaoForm:
+        
+        posicao = PosicaoRepository.get_posicao_by_id(request.user, id)
+
+        form = OperacaoForm(initial={
+            "ativo": posicao.ativo.id,         # se for ModelChoiceField precisa ser o ID
+            "quantidade": posicao.quantidade,
+            "tipo": "VENDA",
+            "data": date_today(),     # se tiver campo data
+        })
+
+        return form

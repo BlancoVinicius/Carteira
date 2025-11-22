@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import AcaoForm, OperacaoForm, OpcaoForm
 from carteira.repositories import OperacaoRepository, AcaoRepository, PosicaoRepository, OpcaoRepository
-from carteira.service import DashboardService
+from carteira.service import DashboardService, PosicaoService
 
 # Create your views here.
 
@@ -50,7 +50,7 @@ def create_operacao(request):
 @login_required
 def operacao_list(request):
     """Lista todas as operações do usuário logado."""
-    operacoes = OperacaoRepository.get_operacoes(request.user).order_by('-data')
+    operacoes = OperacaoRepository.get_operacoes(request.user)
 
     # Calcula o total de cada operação (quantidade * preço)
     for op in operacoes:
@@ -73,7 +73,7 @@ def dashboard(request):
 @login_required
 def posicoes_list(request):
     """Lista todas as posições do usuário logado."""
-    posicoes = PosicaoRepository.get_posicao_all(request.user)
+    posicoes = PosicaoRepository.get_posicao_all_open(request.user)
 
     for p in posicoes:
         p.lucro = p.valor_atual - (p.quantidade * p.preco_medio)
@@ -83,3 +83,17 @@ def posicoes_list(request):
         "posicoes": posicoes,
     }
     return render(request, "carteira/posicoes.html", context)
+
+@login_required
+def finish(request, id):
+    # """Finaliza uma posição específica."""
+    # posicao = PosicaoService.finish_posicao(request, id)
+    
+    # if not posicao:
+    #     from django.http import HttpResponseBadRequest
+    #     return HttpResponseBadRequest("Posição não encontrada ou não pertence ao usuário.") 
+    
+    # return redirect("carteira:posicoes")
+
+    form = PosicaoService.teste_posicao_form_transition(request, id)
+    return render(request, "carteira/operacao_form.html", {"form": form})

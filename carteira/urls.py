@@ -9,5 +9,6 @@ urlpatterns = [
     path("criar_operacao/", views.create_operacao, name="create_operacao"),
     path("operacao_list/", views.operacao_list, name="operacao_list"),
     path("posicoes/", views.posicoes_list, name="posicoes"),
+    path("posicao/finalizar/<int:id>", views.finish, name="posicao_finish"),
     path("dashboard/", views.dashboard, name="dashboard"),
 ]

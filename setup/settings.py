@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Aplicativos do projeto
-    'carteira',
+    # 'carteira',
+    'carteira.apps.CarteiraConfig',
     'django.contrib.humanize',
     'contas',
 

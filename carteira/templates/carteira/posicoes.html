@@ -87,6 +87,16 @@
                                 <strong>Rendimento:</strong> {{ p.rendimento|floatformat:2 }}%
                             </p>
                         </div>
+                        <!-- AÇÕES DO CARD -->
+                         <div class="d-flex flex-column gap-2">
+                            <a href="{% url "carteira:posicao_finish" p.id %}" class="btn btn-sm btn-outline-danger w-100">
+                                <i class="bi bi-trash"></i> Finalizar
+                            </a>
+
+                            <a href="#" class="btn btn-sm btn-outline-primary w-100" margin="10px">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
