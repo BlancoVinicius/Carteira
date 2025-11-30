@@ -1,4 +1,4 @@
-from carteira.repositories import PosicaoRepository, OperacaoRepository
+from carteira.repositories import PosicaoRepository, AcaoRepository, FIIRepository, OpcaoRepository
 from decimal import Decimal, ROUND_DOWN
 
     # Transformando a lista em string separada por espaços
@@ -6,6 +6,9 @@ from typing import Union, List
 import yfinance as yf
 from carteira.forms import OperacaoForm
 from django.utils.timezone import localdate as date_today
+from django.http import QueryDict
+
+
 
 class DadosMercado:
     
@@ -40,7 +43,7 @@ class DadosMercado:
 class DashboardService:
     
     def get_resumo_carteira(request):
-        posicoes = PosicaoRepository.get_posicao_all_open(request.user)
+        posicoes = PosicaoRepository.abertas(request.user)
 
         if not posicoes:
             return {"posicoes": []}
@@ -62,7 +65,7 @@ class DashboardService:
         valor_atual = sum(
             p.quantidade * to_decimal(df[p.ativo.codigo + ".SA"]) for p in posicoes if isinstance(p.ativo, Acao)
         )
-        valor_atual = valor_atual.quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+        valor_atual = Decimal(valor_atual).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
 
         lucro = (valor_atual - valor_investido).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
         percentual = (lucro / valor_investido * 100).quantize(Decimal("0.01"), rounding=ROUND_DOWN) if valor_investido > 0 else Decimal("0.00")
@@ -99,22 +102,48 @@ class PosicaoService:
         :param posicao: Posicao
         :return: None
         """
-        posicao = PosicaoRepository.get_posicao_by_id(request.user, id)
+        # posicao = PosicaoRepository.get_posicao_by_id(request.user, id)
 
-        if posicao:
-            return OperacaoRepository.finalizar_posicao(posicao, request.user)
-        return False 
+        # if posicao:
+        #     return OperacaoRepository.finalizar_posicao(posicao, request.user)
+        # return False 
+        form = OperacaoService.construir_form_zerar_posicao(request.user, id)
+        return form
+
+class OperacaoService:
+
+    # @staticmethod
+    # def criar_operacao(request):
+    #     form = OperacaoForm(request.POST)
+    #     form.set_ativo()
+            
+
 
     @staticmethod
-    def teste_posicao_form_transition(request, id) -> OperacaoForm:
-        
-        posicao = PosicaoRepository.get_posicao_by_id(request.user, id)
+    def construir_form(data:QueryDict | None = None) -> OperacaoForm:
+        opcoes = []
+
+        for acao in AcaoRepository.get_acoes():
+            opcoes.append((f"Acao:{acao.id}", f"{acao}"))
+        for fii in FIIRepository.get_fii_all():
+            opcoes.append((f"FII:{fii.id}", f"{fii}"))
+        for opcao in OpcaoRepository.get_opcao_all():
+            opcoes.append((f"Opcao:{opcao.id}", f"{opcao}"))
+
+        op_form = OperacaoForm(data)
+        op_form.set_ativo(opcoes)
+
+        return op_form    
+
+    @staticmethod
+    def construir_form_zerar_posicao(usuario, id):
+        posicao = PosicaoRepository.get_posicao_by_id(usuario, id)
 
         form = OperacaoForm(initial={
-            "ativo": posicao.ativo.id,         # se for ModelChoiceField precisa ser o ID
-            "quantidade": posicao.quantidade,
-            "tipo": "VENDA",
+            "quantidade": posicao.quantidade if posicao.quantidade > 0 else posicao.quantidade * (-1),
+            "tipo": "VENDA" if posicao.quantidade > 0 else "COMPRA",
             "data": date_today(),     # se tiver campo data
         })
 
+        form.set_ativo([(f"{posicao.ativo.__class__.__name__}:{posicao.ativo.id}", f"{posicao.ativo}")])
         return form

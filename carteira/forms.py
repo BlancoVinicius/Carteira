@@ -1,7 +1,8 @@
 from carteira.models import Acao, Operacao, Opcao
 from django import forms
+from typing import List
 
-from carteira.repositories import AcaoRepository, FIIRepository, OpcaoRepository
+from carteira.repositories import AcaoRepository, OpcaoRepository
 
 class AcaoForm(forms.ModelForm):
     # Sobrescrevendo campos do Model
@@ -52,10 +53,14 @@ class OperacaoForm(forms.ModelForm):
         model = Operacao
         exclude = ["content_type", "object_id", "usuario"]
         widgets = {
-            "data": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "data": forms.DateInput(
+                attrs={"type": "date", "class": "form-control"},
+                format="%Y-%m-%d",
+            ),
+            
             "tipo": forms.Select(attrs={"class": "form-select"}),
             "quantidade": forms.NumberInput(
-                attrs={"class": "form-control", "step": "0.0001"}
+                attrs={"class": "form-control"}
             ),
             "preco": forms.NumberInput(
                 attrs={"class": "form-control", "step": "0.000001"}
@@ -64,22 +69,9 @@ class OperacaoForm(forms.ModelForm):
             "emolumentos": forms.NumberInput(attrs={"class": "form-control"}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Monta as opções de ativos (tuplas: (identificador, nome exibido))
-        opcoes = []
-
-        for acao in AcaoRepository.get_acoes():
-            opcoes.append((f"Acao:{acao.id}", f"Ação - {acao}"))
-        for fii in FIIRepository.get_fii_all():
-            opcoes.append((f"FII:{fii.id}", f"FII - {fii}"))
-        for opcao in OpcaoRepository.get_opcao_all():
-            opcoes.append((f"Opcao:{opcao.id}", f"Opção - {opcao}"))
-
-        self.fields["ativo"].choices = opcoes
+    def set_ativo(self, ativos: List[tuple]):
+        self.fields["ativo"].choices = ativos
         self.fields["ativo"].widget.attrs.update({"class": "form-select"})
-
 
     def clean_quantidade(self):
         qtd = self.cleaned_data.get("quantidade")

@@ -173,6 +173,14 @@ class PosicaoRepository:
         return Posicao.objects.filter(usuario=usuario, quantidade__gt=0)
 
     @staticmethod
+    def get_posicao_all(usuario:User):
+        """
+        Retorna a posicao do usuario
+        :return: QuerySet
+        """
+        return Posicao.objects.filter(usuario=usuario)
+
+    @staticmethod
     def get_posicao(usuario, ativo):
         """
         Retorna a posicao do usuario
@@ -216,3 +224,19 @@ class PosicaoRepository:
         :return: None
         """
         posicao.delete()
+    
+    @staticmethod
+    def abertas(usuario):
+        return Posicao.objects.filter(usuario=usuario).exclude(quantidade=0)
+
+    @staticmethod
+    def compradas(usuario):
+        return Posicao.objects.filter(usuario=usuario, quantidade__gt=0)
+
+    @staticmethod
+    def vendidas(usuario):
+        return Posicao.objects.filter(usuario=usuario, quantidade__lt=0)
+
+    @staticmethod
+    def zeradas(usuario):
+        return Posicao.objects.filter(usuario=usuario, quantidade=0)

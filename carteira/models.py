@@ -80,7 +80,7 @@ class Operacao(models.Model):
 
     data = models.DateField()
     tipo = models.CharField(max_length=6, choices=TIPO)
-    quantidade = models.DecimalField(max_digits=20, decimal_places=4)
+    quantidade = models.IntegerField()
     preco = models.DecimalField(max_digits=20, decimal_places=6)
     corretagem = models.DecimalField(
         max_digits=12, decimal_places=2, default=Decimal("0.00")
@@ -104,7 +104,7 @@ class Operacao(models.Model):
         return (self.preco * self.quantidade) + self.corretagem + self.emolumentos
 
     @property
-    def valor_atual(self):
+    def valor_investido(self):
         return self.quantidade * self.preco
 
 # -------------------------
@@ -115,7 +115,7 @@ class Posicao(models.Model):
     object_id = models.PositiveIntegerField()
     ativo = GenericForeignKey("content_type", "object_id")
 
-    quantidade = models.DecimalField(max_digits=20, decimal_places=4, default=0)
+    quantidade = models.IntegerField(default=0)
     preco_medio = models.DecimalField(max_digits=20, decimal_places=6, default=0)
     usuario = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
 

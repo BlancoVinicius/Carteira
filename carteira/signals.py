@@ -33,10 +33,10 @@ class OperacaoSignal:
         for op in ops:
             if op.tipo == 'COMPRA':
                 quantidade += op.quantidade
-                preco_medio += op.valor_atual
+                preco_medio += op.valor_investido
 
             elif op.tipo == 'VENDA':
                 quantidade -= op.quantidade
-                preco_medio -= op.valor_atual
+                preco_medio -= op.valor_investido
 
         return quantidade, preco_medio
