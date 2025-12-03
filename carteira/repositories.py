@@ -5,33 +5,54 @@ from carteira.models import Operacao, Acao, FII, Opcao, Posicao
 from django.contrib.auth.models import User
 from django.utils.timezone import localdate as date_today
 
+from django.contrib.auth import get_user_model
+
+USER = get_user_model()
+
 # Repositorio de Operacaos
 class OperacaoRepository:
     model_map = {"Acao": Acao, "FII": FII, "Opcao": Opcao}
 
     @staticmethod
-    def save(dados_form, usuario):
+    def save(dados_form: dict, usuario: USER, content_type: ContentType, object_id: int):
         """
         Salva uma operação no banco a partir dos dados validados do formulário.
         :param dados_form: dict, dados validados do form (cleaned_data)
         :param usuario: User
         :return: Operacao
         """
-        ativo_str = dados_form.pop("ativo")  # remove 'ativo' do dict
-        tipo_model, obj_id = ativo_str.split(":")
-        obj_id = int(obj_id)
-
-        model = OperacaoRepository.model_map[tipo_model]
-        ativo = model.objects.get(id=obj_id)
-
         # Cria instância do modelo Operacao
         operacao = Operacao(**dados_form)
         operacao.usuario = usuario
-        operacao.content_type = ContentType.objects.get_for_model(model)
-        operacao.object_id = ativo.id
+        operacao.content_type = content_type
+        operacao.object_id = object_id
 
         operacao.save()
         return operacao
+
+    #     @staticmethod
+    # def save(dados_form, usuario):
+    #     """
+    #     Salva uma operação no banco a partir dos dados validados do formulário.
+    #     :param dados_form: dict, dados validados do form (cleaned_data)
+    #     :param usuario: User
+    #     :return: Operacao
+    #     """
+    #     ativo_str = dados_form.pop("ativo")  # remove 'ativo' do dict
+    #     tipo_model, obj_id = ativo_str.split(":")
+    #     obj_id = int(obj_id)
+
+    #     model = OperacaoRepository.model_map[tipo_model]
+    #     ativo = model.objects.get(id=obj_id)
+
+    #     # Cria instância do modelo Operacao
+    #     operacao = Operacao(**dados_form)
+    #     operacao.usuario = usuario
+    #     operacao.content_type = ContentType.objects.get_for_model(model)
+    #     operacao.object_id = ativo.id
+
+    #     operacao.save()
+    #     return operacao
     
     @staticmethod
     def finalizar_posicao(posicao:Posicao, usuario:User) -> bool:

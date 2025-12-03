@@ -1,4 +1,4 @@
-from carteira.repositories import PosicaoRepository, AcaoRepository, FIIRepository, OpcaoRepository
+from carteira.repositories import PosicaoRepository, AcaoRepository, FIIRepository, OpcaoRepository, OperacaoRepository
 from decimal import Decimal, ROUND_DOWN
 
     # Transformando a lista em string separada por espaços
@@ -7,8 +7,11 @@ import yfinance as yf
 from carteira.forms import OperacaoForm
 from django.utils.timezone import localdate as date_today
 from django.http import QueryDict
+from django.contrib.contenttypes.models import ContentType
 
+from django.contrib.auth import get_user_model
 
+USER = get_user_model()
 
 class DadosMercado:
     
@@ -112,23 +115,16 @@ class PosicaoService:
 
 class OperacaoService:
 
-    # @staticmethod
-    # def criar_operacao(request):
-    #     form = OperacaoForm(request.POST)
-    #     form.set_ativo()
-            
-
-
     @staticmethod
     def construir_form(data:QueryDict | None = None) -> OperacaoForm:
         opcoes = []
 
         for acao in AcaoRepository.get_acoes():
-            opcoes.append((f"Acao:{acao.id}", f"{acao}"))
+            opcoes.append((f"{ContentType.objects.get_for_model(acao).id}:{acao.id}", f"{acao}"))
         for fii in FIIRepository.get_fii_all():
-            opcoes.append((f"FII:{fii.id}", f"{fii}"))
+            opcoes.append((f"{ContentType.objects.get_for_model(fii).id}:{fii.id}", f"{fii}"))
         for opcao in OpcaoRepository.get_opcao_all():
-            opcoes.append((f"Opcao:{opcao.id}", f"{opcao}"))
+            opcoes.append((f"{ContentType.objects.get_for_model(opcao).id}:{opcao.id}", f"{opcao}"))
 
         op_form = OperacaoForm(data)
         op_form.set_ativo(opcoes)
@@ -145,5 +141,23 @@ class OperacaoService:
             "data": date_today(),     # se tiver campo data
         })
 
-        form.set_ativo([(f"{posicao.ativo.__class__.__name__}:{posicao.ativo.id}", f"{posicao.ativo}")])
+        form.set_ativo([(f"{ContentType.objects.get_for_model(posicao.ativo).id}:{posicao.ativo.id}", f"{posicao.ativo}")])
         return form
+
+    @staticmethod
+    def salvar_operacao(dados_form: dict, usuario: USER):
+        """
+        Salva uma operação no banco a partir dos dados validados do formulário.
+        :param dados_form: dict, dados validados do form (cleaned_data)
+        :param usuario: User
+        :return: Operacao
+        """
+        ativo_str = dados_form.pop("ativo")  # remove 'ativo' do dict
+        tipo_model_id, obj_id = ativo_str.split(":")
+        obj_id = int(obj_id)
+        tipo_model_id = int(tipo_model_id)
+
+        content_type = ContentType.objects.get_for_id(tipo_model_id)
+
+        return OperacaoRepository.save(dados_form, usuario, content_type, obj_id)
+        # return operacao

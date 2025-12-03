@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import AcaoForm, OperacaoForm, OpcaoForm
+from .forms import AcaoForm, OpcaoForm
 from carteira.repositories import OperacaoRepository, AcaoRepository, PosicaoRepository, OpcaoRepository
 from carteira.service import DashboardService, PosicaoService, OperacaoService
 # Create your views here.
@@ -12,7 +12,7 @@ def create_acao(request):
         form = AcaoForm(request.POST)
         if form.is_valid():
             print("Formulário válido")
-            acao = AcaoRepository.save(form.cleaned_data)
+            AcaoRepository.save(form.cleaned_data)
             return redirect("carteira:dashboard")
     else:
         form = AcaoForm()
@@ -26,7 +26,7 @@ def create_opcao(request):
         form = OpcaoForm(request.POST)
         if form.is_valid():
             print("Formulário válido")
-            opcao = OpcaoRepository.save(form.cleaned_data)
+            OpcaoRepository.save(form.cleaned_data)
             return redirect("carteira:dashboard")
     else:
         form = OpcaoForm()
@@ -38,7 +38,7 @@ def create_operacao(request):
     if request.method == "POST":
         form = OperacaoService.construir_form(request.POST)
         if form.is_valid():
-            operacao = OperacaoRepository.save(form.cleaned_data, request.user)
+            OperacaoService.salvar_operacao(form.cleaned_data, request.user)
             return redirect("carteira:dashboard")  # redireciona após salvar
     else:
         form = OperacaoService.construir_form()
