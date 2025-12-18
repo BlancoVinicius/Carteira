@@ -30,30 +30,6 @@ class OperacaoRepository:
         operacao.save()
         return operacao
 
-    #     @staticmethod
-    # def save(dados_form, usuario):
-    #     """
-    #     Salva uma operação no banco a partir dos dados validados do formulário.
-    #     :param dados_form: dict, dados validados do form (cleaned_data)
-    #     :param usuario: User
-    #     :return: Operacao
-    #     """
-    #     ativo_str = dados_form.pop("ativo")  # remove 'ativo' do dict
-    #     tipo_model, obj_id = ativo_str.split(":")
-    #     obj_id = int(obj_id)
-
-    #     model = OperacaoRepository.model_map[tipo_model]
-    #     ativo = model.objects.get(id=obj_id)
-
-    #     # Cria instância do modelo Operacao
-    #     operacao = Operacao(**dados_form)
-    #     operacao.usuario = usuario
-    #     operacao.content_type = ContentType.objects.get_for_model(model)
-    #     operacao.object_id = ativo.id
-
-    #     operacao.save()
-    #     return operacao
-    
     @staticmethod
     def finalizar_posicao(posicao:Posicao, usuario:User) -> bool:
         """

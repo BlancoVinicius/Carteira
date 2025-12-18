@@ -1,3 +1,4 @@
+from uu import Error
 from carteira.repositories import PosicaoRepository, AcaoRepository, FIIRepository, OpcaoRepository, OperacaoRepository
 from decimal import Decimal, ROUND_DOWN
 
@@ -112,6 +113,11 @@ class PosicaoService:
         # return False 
         form = OperacaoService.construir_form_zerar_posicao(request.user, id)
         return form
+    
+    @staticmethod
+    def buscar_posicoes_usuario(user:USER):
+        return PosicaoRepository.abertas(user)
+
 
 class OperacaoService:
 
@@ -158,6 +164,24 @@ class OperacaoService:
         tipo_model_id = int(tipo_model_id)
 
         content_type = ContentType.objects.get_for_id(tipo_model_id)
+        if not content_type.app_label == "carteira":
+            raise Error("DADOS NÂO CONFEREM!")
 
         return OperacaoRepository.save(dados_form, usuario, content_type, obj_id)
-        # return operacao
+        
+    @staticmethod
+    def buscar_operacoes_pelo_usuario(user:USER):
+        return OperacaoRepository.get_operacoes(user)
+
+class AcaoService:
+
+    @staticmethod
+    def save(dados_form: dict):
+        return AcaoRepository.save(dados_form)
+
+
+class OpcaoService:
+
+    @staticmethod
+    def save(dados_form: dict):
+        return OpcaoRepository.save(dados_form)

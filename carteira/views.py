@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import AcaoForm, OpcaoForm
-from carteira.repositories import OperacaoRepository, AcaoRepository, PosicaoRepository, OpcaoRepository
-from carteira.service import DashboardService, PosicaoService, OperacaoService
+from carteira.service import DashboardService, OpcaoService, PosicaoService, OperacaoService, AcaoService
 # Create your views here.
 
 @login_required
@@ -11,8 +10,7 @@ def create_acao(request):
     if request.method == "POST":
         form = AcaoForm(request.POST)
         if form.is_valid():
-            print("Formulário válido")
-            AcaoRepository.save(form.cleaned_data)
+            AcaoService.save(form.cleaned_data)
             return redirect("carteira:dashboard")
     else:
         form = AcaoForm()
@@ -25,8 +23,7 @@ def create_opcao(request):
     if request.method == "POST":
         form = OpcaoForm(request.POST)
         if form.is_valid():
-            print("Formulário válido")
-            OpcaoRepository.save(form.cleaned_data)
+            OpcaoService.save(form.cleaned_data)
             return redirect("carteira:dashboard")
     else:
         form = OpcaoForm()
@@ -48,7 +45,7 @@ def create_operacao(request):
 @login_required
 def operacao_list(request):
     """Lista todas as operações do usuário logado."""
-    operacoes = OperacaoRepository.get_operacoes(request.user)
+    operacoes = OperacaoService.buscar_operacoes_pelo_usuario(request.user)
 
     # Calcula o total de cada operação (quantidade * preço)
     for op in operacoes:
@@ -71,7 +68,7 @@ def dashboard(request):
 @login_required
 def posicoes_list(request):
     """Lista todas as posições do usuário logado."""
-    posicoes = PosicaoRepository.abertas(request.user)
+    posicoes = PosicaoService.buscar_posicoes_usuario(request.user)
 
     for p in posicoes:
         p.lucro = p.valor_atual - (p.quantidade * p.preco_medio)
