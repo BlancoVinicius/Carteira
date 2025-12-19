@@ -133,3 +133,23 @@ class Posicao(models.Model):
         return self.quantidade * self.preco_medio
 
     
+
+class EventoOperacional(models.Model):
+    
+    class Tipo(models.TextChoices):
+        ABERTURA = "ABERTURA", "Abertura"
+        FECHAMENTO = "FECHAMENTO", "Fechamento"
+        ROLAGEM = "ROLAGEM", "Rolagem"
+
+
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    operacao = models.ForeignKey(
+        Operacao,
+        on_delete=models.PROTECT,
+        related_name="eventos"
+    )
+
+    tipo = models.CharField(max_length=15, choices=Tipo)
+
+    data = models.DateTimeField()
