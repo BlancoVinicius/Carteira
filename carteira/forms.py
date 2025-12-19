@@ -1,11 +1,17 @@
+from carteira.models import Acao, Operacao, Opcao
 from django import forms
-from carteira.models import Acao, Operacao, FII, Opcao
-from django.contrib.contenttypes.models import ContentType
+from typing import List
 
+from carteira.repositories import AcaoRepository, OpcaoRepository
 
 class AcaoForm(forms.ModelForm):
     # Sobrescrevendo campos do Model
-    codigo = forms.ChoiceField(label="Código da Ação")
+    # codigo = forms.ChoiceField(label="Código da Ação")
+
+    codigo = forms.CharField(
+        label="Código da Ação",
+        widget=forms.TextInput(attrs={"class": "form-control", "list": "lista_codigos"}),
+    )
 
     class Meta:
         model = Acao
@@ -16,7 +22,8 @@ class AcaoForm(forms.ModelForm):
 
         # lista de códigos válidos
         lista_codigos = ["PETR4", "VALE3", "ITUB4", "BBDC3"]
-
+        self.lista_codigos = lista_codigos
+        
         # gera a lista de opções para o <select>
         self.fields["codigo"].choices = [(c, c) for c in lista_codigos]
         self.fields["codigo"].choices.insert(0, ("", "Selecione um código"))
@@ -33,7 +40,7 @@ class AcaoForm(forms.ModelForm):
             raise forms.ValidationError("Selecione um código válido.")
 
         # verifica se já existe alguma ação com esse código
-        if Acao.objects.filter(codigo=codigo).exists():
+        if  AcaoRepository.get_acao(codigo=codigo).exists():
             raise forms.ValidationError(f"A ação '{codigo}' já está cadastrada.")
 
         return codigo
@@ -46,10 +53,14 @@ class OperacaoForm(forms.ModelForm):
         model = Operacao
         exclude = ["content_type", "object_id", "usuario"]
         widgets = {
-            "data": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "data": forms.DateInput(
+                attrs={"type": "date", "class": "form-control"},
+                format="%Y-%m-%d",
+            ),
+            
             "tipo": forms.Select(attrs={"class": "form-select"}),
             "quantidade": forms.NumberInput(
-                attrs={"class": "form-control", "step": "0.0001"}
+                attrs={"class": "form-control"}
             ),
             "preco": forms.NumberInput(
                 attrs={"class": "form-control", "step": "0.000001"}
@@ -58,43 +69,9 @@ class OperacaoForm(forms.ModelForm):
             "emolumentos": forms.NumberInput(attrs={"class": "form-control"}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Monta as opções de ativos (tuplas: (identificador, nome exibido))
-        opcoes = []
-
-        for acao in Acao.objects.all():
-            opcoes.append((f"Acao:{acao.id}", f"Ação - {acao}"))
-        for fii in FII.objects.all():
-            opcoes.append((f"FII:{fii.id}", f"FII - {fii}"))
-        for opcao in Opcao.objects.all():
-            opcoes.append((f"Opcao:{opcao.id}", f"Opção - {opcao}"))
-
-        self.fields["ativo"].choices = opcoes
+    def set_ativo(self, ativos: List[tuple]):
+        self.fields["ativo"].choices = ativos
         self.fields["ativo"].widget.attrs.update({"class": "form-select"})
-
-    def save(self, usuario=None, commit=True):
-        instance = super().save(commit=False)
-
-        ativo_str = self.cleaned_data["ativo"]
-        tipo_model, obj_id = ativo_str.split(":")
-        obj_id = int(obj_id)
-
-        # Mapeia o tipo de ativo para o modelo correspondente
-        model_map = {"Acao": Acao, "FII": FII, "Opcao": Opcao}
-        model = model_map[tipo_model]
-
-        ativo = model.objects.get(id=obj_id)
-
-        # Define content_type e object_id automaticamente
-        instance.content_type = ContentType.objects.get_for_model(model)
-        instance.object_id = ativo.id
-        instance.usuario = usuario
-
-        if commit:
-            instance.save()
-        return instance
 
     def clean_quantidade(self):
         qtd = self.cleaned_data.get("quantidade")
@@ -112,15 +89,47 @@ class OperacaoForm(forms.ModelForm):
 
         return preco
 
-# def clean_codigo(self):
-#     """Valida se o código da ação já existe no banco."""
-#     codigo = self.cleaned_data.get("codigo")
 
-#     if not codigo:
-#         raise forms.ValidationError("Selecione um código válido.")
+class OpcaoForm(forms.ModelForm):
+    
+    # codigo = forms.ChoiceField(label="Código da Ação")
+    codigo = forms.CharField(
+        label="Código da Opção",
+        widget=forms.TextInput(attrs={"class": "form-control", "list": "lista_codigos"}),
+    )
 
-#     # verifica se já existe alguma ação com esse código
-#     if Acao.objects.filter(codigo=codigo).exists():
-#         raise forms.ValidationError(f"A ação '{codigo}' já está cadastrada.")
+    class Meta:
+        model = Opcao
+        fields = ["codigo", "tipo_opcao", "descricao", "modelo", "strike", "vencimento"]
+        widgets = {
+            "vencimento": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        }
 
-#     return codigo
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # lista de códigos válidos
+        lista_codigos = ["PETRW200", "VALEX210", "ITUBL315", "BBDCX220"]
+        self.lista_codigos = lista_codigos
+
+        # gera a lista de opções para o <select>
+        self.fields["codigo"].choices = [(c, c) for c in lista_codigos]
+        self.fields["codigo"].choices.insert(0, ("", "Selecione um código"))
+
+        # Aplica classe Bootstrap
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})
+
+    def clean_codigo(self):
+        """Valida se o código da ação já existe no banco."""
+        codigo = self.cleaned_data.get("codigo")
+
+        if not codigo:
+            raise forms.ValidationError("Selecione um código válido.")
+
+        # verifica se já existe alguma ação com esse código
+        if  OpcaoRepository.get_opcao(codigo=codigo).exists():
+            raise forms.ValidationError(f"A opção '{codigo}' já está cadastrada.")
+
+        return codigo
+    

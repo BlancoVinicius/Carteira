@@ -1,10 +1,29 @@
-{% extends "base.html" %}
+{% extends "base3.html" %}
+
+{% block itens_menu_suspenso %}
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:dashboard" %}">Dashboard</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item bg-success text-white" href="{% url "carteira:create_operacao" %}">Adicionar Operação</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:create_acao" %}">Adicionar Ativo</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:posicoes" %}">Listar Posições</a>
+    </li>
+{% endblock %}
+
 
 {% block content %}
   <div class="container mt-4">
     <div class="card shadow-sm">
-      <div class="card-header bg-primary text-white">
-        <h4>Cadastrar Ação</h4>
+      <div class="card-header text-white">
+        <h4>Cadastrar Operação</h4>
       </div>
       <div class="card-body">
         <form method="post" action="{% url 'carteira:create_operacao' %}">
@@ -28,7 +47,7 @@
           {% endif %}
           <br>
           <button type="submit" class="btn btn-primary">Salvar</button>
-          <a href="{% url 'carteira:index' %}" class="btn btn-secondary">Cancelar</a>
+          <a href="{% url 'contas:index' %}" class="btn btn-secondary">Cancelar</a>
         </form>
       </div>
     </div>

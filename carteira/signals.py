@@ -1,33 +1,42 @@
 from django.dispatch import receiver
-from django.db.models.signals import post_save, post_delete
-from django.db import models
+from django.db.models.signals import post_save
 from .models import Operacao, Posicao
-from django.contrib.contenttypes.models import ContentType
 from decimal import Decimal
+from django.db.models.query import QuerySet
 
-@receiver(post_save, sender=Operacao)
-def update_saldo(sender, instance, **kwargs):
+class OperacaoSignal:
     
-    content_type = ContentType.objects.get_for_model(instance.ativo)
-
-    ops = Operacao.objects.filter(content_type=content_type, object_id=instance.ativo.id)
-
-    quantidade =  Decimal(0)
-    preco_medio = Decimal(0)
+    @staticmethod
+    @receiver(post_save, sender=Operacao)
+    def update_saldo(sender, instance, **kwargs):
         
-    for op in ops:
-        if op.tipo == 'COMPRA':
-            quantidade += op.quantidade
-            preco_medio += op.valor_atual    
+        content_type = instance.content_type
+        # content_type = ContentType.objects.get_for_model(instance)
 
-        elif op.tipo == 'VENDA':
-            quantidade -= op.quantidade
-            preco_medio -= op.valor_atual
-    
-    preco_medio = preco_medio / quantidade
+        ops = Operacao.objects.filter(content_type=content_type, object_id=instance.object_id, usuario=instance.usuario)
+        quantidade , preco_medio = OperacaoSignal.calc_preco_medio(ops)
+        
+        posicao, created = Posicao.objects.get_or_create(content_type=content_type, object_id=instance.object_id)
+        posicao.quantidade = quantidade
+        if (quantidade != 0 and preco_medio is not None):
+            posicao.preco_medio = preco_medio / quantidade
+        else:
+            posicao.preco_medio = Decimal(0)
+        posicao.usuario = instance.usuario
+        posicao.save()
 
-    posicao, created = Posicao.objects.get_or_create(content_type=content_type, object_id=instance.ativo.id)
-    posicao.quantidade = quantidade
-    posicao.preco_medio = preco_medio
-    posicao.save()
+    @staticmethod
+    def calc_preco_medio(ops: QuerySet[Operacao]) -> tuple[Decimal, Decimal]:
+        quantidade =  Decimal(0)
+        preco_medio = Decimal(0)
+            
+        for op in ops:
+            if op.tipo == 'COMPRA':
+                quantidade += op.quantidade
+                preco_medio += op.valor_investido
 
+            elif op.tipo == 'VENDA':
+                quantidade -= op.quantidade
+                preco_medio -= op.valor_investido
+
+        return quantidade, preco_medio

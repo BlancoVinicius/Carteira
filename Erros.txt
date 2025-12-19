@@ -1,0 +1,20 @@
+Erros de lógica
+
+1. Em listar posições: está retornando posições zeradas. - OK
+2. Listar posições: ao acionar botão finalizar ele redireciona para cadastrar operação,
+porém o Ativo vem Errado (Esta Fixo) e quantidade vem negativa, campo tipo deveria vir invertido
+se estou comprado para zerar realiza uma venda - se vendido uma compra. (
+    o erro esta na construção do form, que chama o __init__ e constroi todos campos.
+) -OK
+
+
+Erros de templat
+
+1. Cards não fica salvo em local storage.
+2. Padronizar cores
+3. botão calcelar de cadastrar operação sempre leva para Dashboard
+4. Inicio e Dashboard levam para mesmo local -> dashboard
+
+Tarefas
+1. Refatorar criar_operacao
+2. Refatorar listar_posiçoes

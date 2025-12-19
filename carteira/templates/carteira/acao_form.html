@@ -1,9 +1,28 @@
-{% extends "base.html" %}
+{% extends "base3.html" %}
+
+{% block itens_menu_suspenso %}
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:dashboard" %}">Dashboard</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:create_operacao" %}">Adicionar Operação</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item bg-success text-white" href="{% url "carteira:create_acao" %}">Adicionar Ativo</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:posicoes" %}">Listar Posições</a>
+    </li>
+    
+{% endblock %}
 
 {% block content %}
   <div class="container mt-4">
     <div class="card shadow-sm">
-      <div class="card-header bg-primary text-white">
+      <div class="card-header text-white">
         <h4>Cadastrar Ação</h4>
       </div>
       <div class="card-body">
@@ -14,6 +33,14 @@
           <div class="mb-3">
             <label for="id_codigo" class="form-label">{{ form.codigo.label }}</label>
             {{ form.codigo }}
+
+
+            <datalist id="lista_codigos">
+              {% for codigo in form.lista_codigos %}
+                <option value="{{ codigo }}">
+              {% endfor %}
+            </datalist>
+
             {% if form.codigo.errors %}
               <div class="text-danger small">{{ form.codigo.errors }}</div>
             {% endif %}
@@ -38,7 +65,7 @@
           </div>
 
           <button type="submit" class="btn btn-primary">Salvar</button>
-          <a href="{% url 'carteira:index' %}" class="btn btn-secondary">Cancelar</a>
+          <a href="{% url 'contas:index' %}" class="btn btn-secondary">Cancelar</a>
         </form>
       </div>
     </div>

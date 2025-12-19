@@ -40,7 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Aplicativos do projeto
-    'carteira'
+    # 'carteira',
+    'carteira.apps.CarteiraConfig',
+    'django.contrib.humanize',
+    'contas',
+
+    # Allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +59,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Allauth
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'setup.urls'
@@ -68,6 +79,12 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+# Configuração do Allauth
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 WSGI_APPLICATION = 'setup.wsgi.application'
@@ -125,5 +142,21 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGOUT_REDIRECT_URL = '/carteira/'
 LOGIN_REDIRECT_URL = '/carteira/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = 'account_login'
+
+ACCOUNT_FORMS = {
+    'signup': 'contas.forms.CustomSignupForm',
+}
+
+ACCOUNT_LOGIN_METHODS = {'email'}
+# ACCOUNT_AUTHENTICATION_METHOD = "email"
+# ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+# ACCOUNT_USERNAME_REQUIRED = False
+
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+ACCOUNT_EMAIL_VERIFICATION = "none"
+
+
