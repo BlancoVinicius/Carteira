@@ -1,5 +1,5 @@
 from uu import Error
-from carteira.repositories import PosicaoRepository, AcaoRepository, FIIRepository, OpcaoRepository, OperacaoRepository
+from carteira.repositories import PosicaoRepository, AcaoRepository, FIIRepository, OpcaoRepository, OperacaoRepository, EstrategiaExecutadaRepository
 from decimal import Decimal, ROUND_DOWN
 
     # Transformando a lista em string separada por espaços
@@ -9,6 +9,8 @@ from carteira.forms import OperacaoForm
 from django.utils.timezone import localdate as date_today
 from django.http import QueryDict
 from django.contrib.contenttypes.models import ContentType
+from django.forms import ModelForm
+from django.db import transaction
 
 from django.contrib.auth import get_user_model
 
@@ -150,15 +152,17 @@ class OperacaoService:
         form.set_ativo([(f"{ContentType.objects.get_for_model(posicao.ativo).id}:{posicao.ativo.id}", f"{posicao.ativo}")])
         return form
 
+    # def salvar_operacao(dados_form: dict, usuario: USER):
     @staticmethod
-    def salvar_operacao(dados_form: dict, usuario: USER):
+    @transaction.atomic
+    def salvar_operacao(form: ModelForm, usuario: USER):
         """
         Salva uma operação no banco a partir dos dados validados do formulário.
         :param dados_form: dict, dados validados do form (cleaned_data)
         :param usuario: User
         :return: Operacao
         """
-        ativo_str = dados_form.pop("ativo")  # remove 'ativo' do dict
+        ativo_str = form.cleaned_data.pop("selecionar_ativo")  # remove 'ativo' do dict
         tipo_model_id, obj_id = ativo_str.split(":")
         obj_id = int(obj_id)
         tipo_model_id = int(tipo_model_id)
@@ -167,7 +171,13 @@ class OperacaoService:
         if not content_type.app_label == "carteira":
             raise Error("DADOS NÂO CONFEREM!")
 
-        return OperacaoRepository.save(dados_form, usuario, content_type, obj_id)
+        if form.cleaned_data.pop("radio_buton") == "NOVA":
+            # cria instancia do estrategia_executada passando o Estrategia
+            estra_exec = EstrategiaExecutadaRepository.save(form.cleaned_data.pop("estrategia"), usuario)
+            return OperacaoRepository.save(form.cleaned_data, usuario, content_type, obj_id, estra_exec)
+        else:
+            form.cleaned_data.pop("estrategia")
+            return OperacaoRepository.save(form.cleaned_data, usuario, content_type, obj_id, form.cleaned_data.pop("estrategia_executada"))
         
     @staticmethod
     def buscar_operacoes_pelo_usuario(user:USER):

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from django.contrib.contenttypes.models import ContentType
-from carteira.models import Operacao, Acao, FII, Opcao, Posicao
+from carteira.models import Operacao, Acao, FII, Opcao, Posicao, Estrategia, EstrategiaExecutada
 
 from django.contrib.auth.models import User
 from django.utils.timezone import localdate as date_today
@@ -14,7 +14,7 @@ class OperacaoRepository:
     model_map = {"Acao": Acao, "FII": FII, "Opcao": Opcao}
 
     @staticmethod
-    def save(dados_form: dict, usuario: USER, content_type: ContentType, object_id: int):
+    def save(dados_form: dict, usuario: USER, content_type: ContentType, object_id: int, estra_exec:EstrategiaExecutada):
         """
         Salva uma operação no banco a partir dos dados validados do formulário.
         :param dados_form: dict, dados validados do form (cleaned_data)
@@ -26,6 +26,8 @@ class OperacaoRepository:
         operacao.usuario = usuario
         operacao.content_type = content_type
         operacao.object_id = object_id
+
+        operacao.estrategia_executada = estra_exec
 
         operacao.save()
         return operacao
@@ -237,3 +239,24 @@ class PosicaoRepository:
     @staticmethod
     def zeradas(usuario):
         return Posicao.objects.filter(usuario=usuario, quantidade=0)
+
+class EstrategiaRepository:
+    @staticmethod
+    def get_all():
+        return Estrategia.objects.all()
+
+class EstrategiaExecutadaRepository:
+    @staticmethod
+    def get_all():
+        return EstrategiaExecutada.objects.all()
+
+    @staticmethod
+    def save(estrategia:Estrategia, usuario:USER):
+        return EstrategiaExecutada.objects.create(
+            estrategia = estrategia,
+            usuario = usuario,
+        )
+
+    @staticmethod
+    def get(id:int, usuario:USER):
+        return EstrategiaExecutada.objects.filter(usuario=usuario, id=id).first()

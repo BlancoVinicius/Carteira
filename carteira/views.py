@@ -35,12 +35,13 @@ def create_operacao(request):
     if request.method == "POST":
         form = OperacaoService.construir_form(request.POST)
         if form.is_valid():
-            OperacaoService.salvar_operacao(form.cleaned_data, request.user)
+            # OperacaoService.salvar_operacao(form.cleaned_data, request.user)
+            OperacaoService.salvar_operacao(form, request.user)
             return redirect("carteira:dashboard")  # redireciona após salvar
     else:
         form = OperacaoService.construir_form()
 
-    return render(request, "carteira/operacao_form.html", {"form": form})
+    return render(request, "carteira/operacao_form3.html", {"form": form})
 
 @login_required
 def operacao_list(request):

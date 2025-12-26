@@ -1,0 +1,104 @@
+{% extends "base3.html" %}
+
+{% block itens_menu_suspenso %}
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:dashboard" %}">Dashboard</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item bg-success text-white" href="{% url "carteira:create_operacao" %}">Adicionar Operação</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:create_acao" %}">Adicionar Ativo</a>
+    </li>
+
+    <li>
+        <a class="dropdown-item" href="{% url "carteira:posicoes" %}">Listar Posições</a>
+    </li>
+{% endblock %}
+
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header text-white">
+        <h4>Cadastrar Operação</h4>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'carteira:create_operacao' %}">
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <p>{{ form.radio_buton.label }}</p>
+
+            {% for radio in form.radio_buton %}
+              <div class="form-check form-check-inline">
+                {{ radio.tag }}
+                <label class="form-check-label" for="{{ radio.id_for_label }}">
+                  {{ radio.choice_label }}
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+
+          {% for field in form %}
+            {% if field.name != "radio_buton" %}
+              <div 
+                class="mb-3"
+                {% if field.name == "estrategia" %}
+                id="campo-estrategia" style="display: none;"
+                {% endif %}
+                >
+                <p>{{ field.label }}</p>
+                {{ field }}
+              </div>
+            {% endif %}
+          {% endfor %}
+          
+          {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <li>{{ field.errors }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+          {% endif %}
+          <br>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+          <a href="{% url 'contas:index' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const radios = document.querySelectorAll('input[name="radio_buton"]');
+        const campoEstrategia = document.getElementById("campo-estrategia");
+
+        function toggleEstrategia() {
+            const selecionado = document.querySelector('input[name="radio_buton"]:checked');
+            if (selecionado && selecionado.value === "EXISTENTE") {
+                campoEstrategia.style.display = "block";
+            } else {
+                campoEstrategia.style.display = "none";
+            }
+        }
+
+        radios.forEach(radio => {
+            radio.addEventListener("change", toggleEstrategia);
+        });
+
+        // Executa ao carregar a página (caso volte com erro de validação)
+        toggleEstrategia();
+    });
+  </script>
+
+
+
+
+{% endblock %}

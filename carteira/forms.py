@@ -2,7 +2,7 @@ from carteira.models import Acao, Operacao, Opcao
 from django import forms
 from typing import List
 
-from carteira.repositories import AcaoRepository, OpcaoRepository
+from carteira.repositories import AcaoRepository, OpcaoRepository, EstrategiaRepository, EstrategiaExecutadaRepository
 
 class AcaoForm(forms.ModelForm):
     # Sobrescrevendo campos do Model
@@ -47,17 +47,42 @@ class AcaoForm(forms.ModelForm):
 
 
 class OperacaoForm(forms.ModelForm):
-    ativo = forms.ChoiceField(label="Ativo")
+    selecionar_ativo = forms.ChoiceField(label="Ativo")
+    
+    radio_buton = forms.ChoiceField(
+    label="Selecione uma opção",
+    choices=[
+        ("NOVA", "Nova estratégia"),
+        ("EXISTENTE", "Estratégia existente"),
+    ],
+    widget=forms.RadioSelect)
+    # estrategia = forms.ChoiceField(label="Selecione uma Estratégia", required=False, widget=forms.Select(attrs={"class": "form-select"}))
+    # estrategia_existente = forms.ChoiceField(label="Selecione Estratégia em andamento", required=False, widget=forms.Select(attrs={"class": "form-select"}))
+    estrategia_executada = forms.ModelChoiceField(
+        queryset=EstrategiaExecutadaRepository.get_all(),
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
+        label="Selecione uma Estratégia em andamento"
+    )
+    
+    estrategia = forms.ModelChoiceField(
+        queryset=EstrategiaRepository.get_all(),
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
+        label="Selecione uma Estratégia"
+    )
+
 
     class Meta:
         model = Operacao
-        exclude = ["content_type", "object_id", "usuario"]
+        fields = ["radio_buton", "estrategia", "estrategia_executada", "data", "tipo", "quantidade", "preco", "corretagem", "emolumentos", "selecionar_ativo"]
+        #exclude = ["content_type", "object_id", "usuario"]
         widgets = {
             "data": forms.DateInput(
                 attrs={"type": "date", "class": "form-control"},
                 format="%Y-%m-%d",
             ),
-            
+            "estrategia": forms.Select(attrs={"class": "form-select"}),
             "tipo": forms.Select(attrs={"class": "form-select"}),
             "quantidade": forms.NumberInput(
                 attrs={"class": "form-control"}
@@ -70,8 +95,11 @@ class OperacaoForm(forms.ModelForm):
         }
 
     def set_ativo(self, ativos: List[tuple]):
-        self.fields["ativo"].choices = ativos
-        self.fields["ativo"].widget.attrs.update({"class": "form-select"})
+        self.fields["selecionar_ativo"].choices = ativos
+        self.fields["selecionar_ativo"].widget.attrs.update({"class": "form-select"})
+
+    # def set_estrategia_executada(self, estrategia:EstrategiaExecutada):
+    #     self.estrategia_executada = estrategia 
 
     def clean_quantidade(self):
         qtd = self.cleaned_data.get("quantidade")
@@ -88,6 +116,33 @@ class OperacaoForm(forms.ModelForm):
             raise forms.ValidationError("Preço deve ser maior que zero.")
 
         return preco
+
+    def clean_estrategia_executada(self):
+        cleaned_data = super().clean()
+        tipo = cleaned_data.get("radio_buton")
+
+        if tipo == "EXISTENTE":
+            execucao = cleaned_data.get("estrategia_executada")
+            if not execucao:
+                raise forms.ValidationError("Selecione uma estratégia em andamento.")
+
+        return execucao
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     tipo = cleaned_data.get("radio_buton")
+
+    #     if tipo == "NOVA":
+    #         estrategia_base = cleaned_data.get("estrategia")
+    #         if not estrategia_base:
+    #             raise forms.ValidationError("Selecione uma estratégia.")
+
+    #     if tipo == "EXISTENTE":
+    #         execucao = cleaned_data.get("estrategia_existente")
+    #         if not execucao:
+    #             raise forms.ValidationError("Selecione uma estratégia em andamento.")
+
+    #     return cleaned_data
+
 
 
 class OpcaoForm(forms.ModelForm):

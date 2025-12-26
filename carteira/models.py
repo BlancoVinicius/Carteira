@@ -66,12 +66,42 @@ class FII(AtivoBase):
     def valor_atual(self) -> Decimal:
         return 0
 
+class Estrategia(models.Model):
+    nome = models.CharField(max_length=150)
+    descricao = models.TextField(blank=True, null=True)
 
-# -------------------------
-# Operações genéricas (usam GenericForeignKey)
-# -------------------------
+    class Meta:
+        db_table = "estrategia"
+        verbose_name = "Estrategia"
+        verbose_name_plural = "Estrategias"
+
+    def __str__(self):
+        return self.nome
+
+
+class EstrategiaExecutada(models.Model):  
+    estrategia:Estrategia = models.ForeignKey(Estrategia, on_delete=models.PROTECT)
+    usuario = models.ForeignKey(User, null=False, blank=False, on_delete=models.PROTECT, related_name="execucoes")
+    data_encerramento = models.DateTimeField(null=True, blank=True)
+    
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "execucao_estrategia"
+        verbose_name = "execucao_estrategia"
+        verbose_name_plural = "estrategias_executadas"
+
+    def __str__(self) -> str:
+        return self.estrategia.nome
+
 class Operacao(models.Model):
     TIPO = [("COMPRA", "Compra"), ("VENDA", "Venda")]
+
+    estrategia_executada = models.ForeignKey(
+        EstrategiaExecutada,
+        on_delete=models.PROTECT,
+        related_name="operacoes",
+    )
 
     # ContentType genérico para qualquer ativo
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
@@ -88,7 +118,7 @@ class Operacao(models.Model):
     emolumentos = models.DecimalField(
         max_digits=12, decimal_places=2, default=Decimal("0.00")
     )
-    usuario = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    usuario = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -107,9 +137,7 @@ class Operacao(models.Model):
     def valor_investido(self):
         return self.quantidade * self.preco
 
-# -------------------------
-# Posições genéricas
-# -------------------------
+
 class Posicao(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
     object_id = models.PositiveIntegerField()
@@ -117,7 +145,7 @@ class Posicao(models.Model):
 
     quantidade = models.IntegerField(default=0)
     preco_medio = models.DecimalField(max_digits=20, decimal_places=6, default=0)
-    usuario = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    usuario = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
 
     class Meta:
         db_table = "posicao"
@@ -132,24 +160,3 @@ class Posicao(models.Model):
     def valor_atual(self):
         return self.quantidade * self.preco_medio
 
-    
-
-class EventoOperacional(models.Model):
-    
-    class Tipo(models.TextChoices):
-        ABERTURA = "ABERTURA", "Abertura"
-        FECHAMENTO = "FECHAMENTO", "Fechamento"
-        ROLAGEM = "ROLAGEM", "Rolagem"
-
-
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    operacao = models.ForeignKey(
-        Operacao,
-        on_delete=models.PROTECT,
-        related_name="eventos"
-    )
-
-    tipo = models.CharField(max_length=15, choices=Tipo)
-
-    data = models.DateTimeField()
